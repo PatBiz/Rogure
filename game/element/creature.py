@@ -31,7 +31,7 @@ class Creature (Element) : #Classe abstraite
         self._hp -= n
 
     def hit (self, other):
-        Gme.theGame().addMessage(msg = f"The {other._name} hits the {self.description()}")
+        Gme.theGame().addMessage(msg = f"The {self._name} hits the {other.description()}")
         other.takeDamage(self._strength)
 
     def isDead (self) :

@@ -17,5 +17,5 @@ def heal (creature:Creature):
 def teleport(creature:Creature, unique:bool) :
     m = Gme.theGame()._floor
     r = rd.choice(m._rooms)
-    m[creature] = m.randEmptyCoord(r)
+    m[creature] = m.randEmptyCoordInRoom(r)
     return unique
