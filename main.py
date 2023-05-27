@@ -1,6 +1,5 @@
 
-# Ce projet à des chances d'utiliser des fonctionnalités de CPython 3.11.2 .
-# Tant qu'on doit pouvoir le valider sur LMS, ces fonctionnalités n'ont pas été intégrés.
+# Ce projet utilise des fonctionnalités de CPython 3.11.2 .
 
 '''
 Membre du groupe :
