@@ -37,6 +37,7 @@ class Map :
         self.size = size
         self._mat = [[Map.empty]*size for _ in range (size)]
         self._elem = {}
+        self._cache = {} #Cache d'objet qui va se faire 'piétiner'
         #self._mat[posHeroDepart.y][posHeroDepart.x] = self._hero
 
         self._rooms = []
@@ -124,6 +125,12 @@ class Map :
     get = get_Elmt_At_Coord
 
     @statically_typed_function
+    def get_cachedItem_At_Coord (self, coord:Coord) :
+        for item in self._cache :
+            if self[item] == coord :
+                return item
+
+    @statically_typed_function
     def get_Pos_Of_Elmt (self, elem:Elmt.Element) :
         """ Renvoie la position de l'élément données 'elem' """
         if elem in self :
@@ -136,7 +143,7 @@ class Map :
         if coord not in self :
             raise IndexError('Out of map coord')
         if self.get_Elmt_At_Coord(coord) != Map.ground :
-            raise ValueError('Incorrect cell')
+            raise ValueError(f"Incorrect cell. Cell was occupied by '{self.get_Elmt_At_Coord(coord)}'")
         if elem in self :
             raise KeyError('Already placed')
         self._mat[coord.y][coord.x] = elem
@@ -204,6 +211,30 @@ class Map :
             nc0 = Coord( c0.x+1 , c0.y )
             c0 = nc0   if(nc0 in room)else   Coord( room.c1.x , c0.y+1 )
         self._mat[c0.y][c0.x] = Map.ground
+
+    #-------------- ITEM :
+
+    @statically_typed_function
+    def cacheItem (self, item:Elmt.Item) :
+        if item not in self :
+            raise ValueError(f"'{item}' is not in map")
+        self._cache[item] = self.get_Pos_Of_Elmt(item)
+
+    @statically_typed_function
+    def cacheItem_At_Coord (self, item:Elmt.Item, coord:Coord) :
+        self._cache[item] = coord
+
+    @statically_typed_function
+    def uncacheItem (self, item:Elmt.Item) :
+        if self._cache :
+            itemPosition = self._cache[item]
+            try : self.put_Elmt_At_Coord(item, itemPosition)
+            except ValueError : pass
+            else : del self._cache[item]
+
+    def uncacheAllItem (self) :
+        for item in list(self._cache) :
+            self.uncacheItem(item)
 
 
     # ¤¤¤¤¤¤ METHODES DE CONSTRUCTION ¤¤¤¤¤¤ #
@@ -300,6 +331,7 @@ class Map :
         self.put(self.randEmptyCoordInRoom(r) , Gme.theGame().randMonster())
 
     # ¤¤¤¤¤¤¤ METHODES DE DEPLACEMENT ¤¤¤¤¤¤ #
+
     def moveAllMonsters(self) :
         for monster in list(self._elem) :
             #Si ce n'est pas une créature
@@ -311,25 +343,24 @@ class Map :
             if orig.distance(self[self._hero]) > 6 : 
                 continue
 
-            dest = orig + self[monster].direction(self[self._hero])
-
-            if (dest in self) and (self[dest] != Map.wall) :
-                if self.get(dest) == Map.ground:
+            dest = orig + orig.direction(self[self._hero])
+            if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
+                print(f"{monster}-->{objMet}")
+                if objMet == Map.ground:
                     self[monster] = dest
-                elif Elmt.meet(monster, self[dest]) :
-                    self.rm(dest)
+                elif Elmt.meet(monster, objMet) :
+                    self.remove_Elmt_At_Coord(dest)       #On vide l'emplacement de l'élément
+                    self[monster] = dest
 
     @statically_typed_function
-    def moveHero (self, e:Elmt.Element, direc:Coord) :
-        ec = self[e]
-        nc = ec + direc
-        if nc in self :
-            if self[nc] == Map.ground :
-                self.remove_Elmt_At_Coord(ec)       #On vide l'ancien emplacement
-                self.put_Elmt_At_Coord(e , nc)      #On déplace 'e' en 'nc'
-
-            elif self[nc] == Map.wall :
-                return
-
-            elif Elmt.meet(self._hero, self[nc]) :
-                self.remove_Elmt_At_Coord(nc)       #On vide l'emplacement de l'élément
+    def moveHero(self, hero:Elmt.Hero, direc:Coord):
+        orig = self[hero]
+        dest = orig + direc       
+        if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
+            print(f"{hero}-->{objMet}") ##
+            if objMet == Map.ground :
+                self.remove_Elmt_At_Coord(orig)       #On vide l'ancien emplacement
+                self.put_Elmt_At_Coord(hero , dest)      #On déplace 'e' en 'nc'
+            elif Elmt.meet(self._hero, objMet) :
+                self.remove_Elmt_At_Coord(dest)       #On vide l'emplacement de l'élément
+                self[hero] = dest

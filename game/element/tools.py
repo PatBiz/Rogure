@@ -1,6 +1,7 @@
 #******************************* Importations : ********************************
 
 # Modules persos :
+import game._game as Gme
 from .creature import Hero
 from .decor import FixedElement
 from .equipment import Item
@@ -18,10 +19,11 @@ def meet (a, b) :
         return False
 
     if isinstance(b, Item) :
-        if isinstance(a, Hero) :
+        if isinstance(a, Hero) : # and inventory not full
             b.getTaken()
             return True
-        return False
+        Gme.theGame()._floor.cacheItem(b)
+        return True
 
     a.hit(b)
     return b.isDead()

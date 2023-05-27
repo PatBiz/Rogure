@@ -31,13 +31,17 @@ class _Game() :
                 5: [ Elmt.Monster("Dragon",20,strength=3) ]
     }
     _actions = {
+        # Actions de déplacement :
         'z' : lambda hero : theGame()._floor.moveHero(hero , Coord(0,-1))   ,
         's' : lambda hero : theGame()._floor.moveHero(hero , Coord(0,1))    ,
         'd' : lambda hero : theGame()._floor.moveHero(hero , Coord(1,0))    ,
         'q' : lambda hero : theGame()._floor.moveHero(hero , Coord(-1,0))   ,
         ' ' : lambda hero : theGame()._floor.moveHero(hero , Coord(0,0))    ,
-        'u' : lambda hero : hero.use(_Game.select(hero._inventory))      ,
-        'i' : lambda hero : theGame().addMessage(hero.fullDescription()),
+        # Actions sur l'inventaire :
+        'u' : lambda hero : hero.use(_Game.select(hero._inventory))         ,
+        'h' : lambda hero : hero.drop(_Game.select(hero._inventory))        ,
+        # Autre actions :
+        'i' : lambda hero : theGame().addMessage(hero.fullDescription())    ,
         'k' : lambda hero : hero.__setattr__('_hp' , 0)
     }
 
@@ -46,6 +50,7 @@ class _Game() :
         self._level = level
         self._floor = floor
         self._message = []
+        
 
     def buildFloor (self) :
          m = self._floor = Flr.Map(hero = self._hero)
@@ -88,6 +93,7 @@ class _Game() :
         self.buildFloor()
         print("--- Welcome Hero! ---")
         while self._hero._hp > 0:
+            self._floor.uncacheAllItem()
             print()
             print(self._floor)
             print(self._hero.description())
