@@ -18,9 +18,3 @@ class Element : #Classe abstraite
     
     def __repr__ (self) :
         return self._abbrv
-        
-    def description(self):
-        raise NotImplementedError("Element is an abstract class.")
-
-    def meet (self, hero) :
-        raise NotImplementedError("Element is an abstract class.")

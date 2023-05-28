@@ -1,11 +1,3 @@
-'''
-Membre du groupe :
-    - BIZOT Patrick
-    - CAUDRON Timothé
-    - GUIARD-DEXET Matthieu
-    - VICART Paul
-'''
-
 
 # BUT du module : Ajouter tous les 'packages' que l'on a créé au PATH afin de pouvoir importer leurs 'modules'
 

@@ -14,6 +14,7 @@ from .elem import Element
 #                                FIXED ELEMENT
 #-------------------------------------------------------------------------------
 
+
 class FixedElement (Element) : #Classe abstraite
     """ Représente l'ensemble des objets fixes ET irrécupérable sur la Map """
     def __init__ (self, name:str, abbrv:str) :
@@ -21,7 +22,7 @@ class FixedElement (Element) : #Classe abstraite
 
     @staticmethod
     def action () :
-        raise NotImplementedError
+        raise NotImplementedError("FixedElement is an abstract class.")
 
 
 class Stairs (FixedElement) :

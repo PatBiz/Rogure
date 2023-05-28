@@ -30,7 +30,7 @@ class _Game() :
                 1: [ Elmt.Monster("Ork",6,strength=2), Elmt.Monster("Blob",10) ],
                 5: [ Elmt.Monster("Dragon",20,strength=3) ]
     }
-    _actions = {
+    actions = {
         # Actions de déplacement :
         'z' : lambda hero : theGame()._floor.moveHero(hero , Coord(0,-1))   ,
         's' : lambda hero : theGame()._floor.moveHero(hero , Coord(0,1))    ,
@@ -53,8 +53,8 @@ class _Game() :
         
 
     def buildFloor (self) :
-         m = self._floor = Flr.Map(hero = self._hero)
-         m.put_Elmt_At_Coord(Elmt.Stairs() , m._rooms[-1].center())
+        m = self._floor = Flr.Map(hero = self._hero)
+        m.put_Elmt_At_Coord(Elmt.Stairs(), m._rooms[-1].center())
 
     def addMessage(self , msg:str) :
         self._message.append(msg)
@@ -87,21 +87,32 @@ class _Game() :
                 return l[int(getch())]
             except (IndexError , ValueError) :
                 return None
+    
+    def update_floor_affichage (self, nuageDeVisibilite=True) :
+        self._floor.uncacheAllItem()
+        if nuageDeVisibilite :
+            print(self._floor.nuage())
+        else :
+            print(self._floor)
+            
 
     def play(self):
         """Main game loop"""
         self.buildFloor()
         print("--- Welcome Hero! ---")
+        
         while self._hero._hp > 0:
-            self._floor.uncacheAllItem()
             print()
-            print(self._floor)
+            print (f"--- Etage {self._level} ---")
+            self.update_floor_affichage(nuageDeVisibilite=False)
             print(self._hero.description())
             print(self.readMessages())
+
             c = getch()
-            if c in _Game._actions:
-                _Game._actions[c](self._hero)
+            if c in _Game.actions:
+                _Game.actions[c](self._hero)
             self._floor.moveAllMonsters()
+        
         print("--- Game Over ---")
 
 

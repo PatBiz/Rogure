@@ -60,7 +60,7 @@ class Equipment (Item) :
         G.addMessage(msg = f"You pick up a {self._name}")
         G._hero.take(self)
 
-    def use (self , creature) :
+    def getUse (self , creature) :
         if self.usage :
             Gme.theGame().addMessage(msg = f"The {creature._name} uses the {self._name}")
             return self.usage(creature)
