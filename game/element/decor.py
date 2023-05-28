@@ -43,4 +43,4 @@ class Chest (FixedElement) :
     @staticmethod
     def action () :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
-        ... #Je le laisse pour Paul OU Timothé
+        ... #Je le laisse pour Paul 
