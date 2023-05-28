@@ -25,14 +25,14 @@ class Creature (Element) : #Classe abstraite
         self._strength = strength
 
     def description(self):
-        raise NotImplementedError
+        raise NotImplementedError("Creature is an abstract class.")
 
     def takeDamage (self, n) :
         self._hp -= n
 
     def hit (self, other):
-        Gme.theGame().addMessage(msg = f"The {self._name} hits the {other.description()}")
         other.takeDamage(self._strength)
+        Gme.theGame().addMessage(msg = f"The {self._name} hits the {other.description()}")
 
     def isDead (self) :
         return self._hp <= 0
@@ -62,9 +62,8 @@ class Hero (Creature) :
     def fullDescription (self) :
         s = ""
         for attr , attrValue in self.__dict__.items() :
-            if attr == '_inventory' :
-                continue
-            s += f"> {attr[1:] if attr[0]=='_' else attr} : {attrValue}\n"
+            if attr != '_inventory' :
+                s += f"> {attr[1:] if attr[0]=='_' else attr} : {attrValue}\n"
         s += f"> INVENTORY : {[i._name for i in self.__dict__['_inventory']]}"
         return s
 
@@ -76,7 +75,7 @@ class Hero (Creature) :
     def use (self, item:Item) :
         if item not in self._inventory :
             raise ValueError(f"<{self.name}> doesn't have <{item.name}>")
-        if item.use(self) :
+        if item.getUse(self) :
             self._inventory.remove(item)
 
     @statically_typed_function

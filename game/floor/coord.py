@@ -10,6 +10,7 @@ class Coord :
         self.x = x
         self.y = y
 
+    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤ DUNDERS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
     def __eq__ (self, other) :
         return self.x == other.x and self.y == other.y
 
@@ -25,6 +26,7 @@ class Coord :
     def __sub__ (self, other) :
         return Coord(self.x-other.x , self.y-other.y)
 
+    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ TOOLS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
     def distance (self, other) :
         c = self - other
         return abs(complex(f"{c.x}{'+' if c.y>=0 else ''}{c.y}j"))

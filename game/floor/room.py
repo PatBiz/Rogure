@@ -15,12 +15,11 @@ from .coord import Coord
 
 
 class Room :
-
-    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤ DUNDERS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
     def __init__ ( self, c1, c2 ) :
         self.c1 = Coord(min(c1.x , c2.x) , min(c1.y , c2.y)) #¤#
         self.c2 = Coord(max(c1.x , c2.x) , max(c1.y , c2.y))
 
+    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤ DUNDERS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
     def __repr__ (self) :
         return str( [self.c1 , self.c2] )
 
@@ -29,16 +28,15 @@ class Room :
             return (self.c1.x <= o.x <= self.c2.x) and (self.c1.y <= o.y <= self.c2.y) #¤#
         return False
 
-
-    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ TOOLS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
-    def getIterator (self) :
+    def __iter__ (self) :
         c0 = self.c1
         while c0 != self.c2 :
+            yield c0
             nc0 = Coord( c0.x+1 , c0.y )
             c0 = nc0   if(nc0 in self)else   Coord( self.c1.x , c0.y+1 )
-            yield c0
-        return self.c2
+        yield self.c2
 
+    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ TOOLS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
     def center (self) :
         return Coord ( (self.c1.x + self.c2.x)//2 , (self.c1.y + self.c2.y)//2 )
 

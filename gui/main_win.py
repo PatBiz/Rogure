@@ -24,7 +24,7 @@ main_BgColor = 'gray'
 #icon = tk.PhotoImage(file='win_elmts/rogure_icone.png')
 
 mainWin.geometry( f'740x600+{(mainWin.winfo_screenwidth() - 740)//2}+0')  ;  mainWin.resizable(width=False, height=False)
-mainWin.title('Rogure') ; mainWin.iconbitmap(True, 'win_elmts/rogure_icone.ico') ; mainWin.config(bg=main_BgColor)
+mainWin.title('Rogure') ; mainWin.iconbitmap(True, 'assets/rogure_icone.ico') ; mainWin.config(bg=main_BgColor)
 
 
 # Titre :

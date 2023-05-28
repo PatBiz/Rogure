@@ -1,7 +1,14 @@
-from .keyboard_tools import getch
-from .statically_typed_decorator import statically_typed_function
+from .keyboard_listener import getch
+from .functions_helper import apply_decorators, statically_typed_function
 
 __all__ = (
+
+    # --- Keyboard Listener ---
+
     "getch",
-    "statically_typed_function"
+
+    # --- Functions Helper ---
+
+    "apply_decorators",
+    "statically_typed_function",
 )
