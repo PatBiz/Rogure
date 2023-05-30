@@ -47,3 +47,13 @@ class Coord :
     @staticmethod
     def isTooFar (pos1, pos2, dist) :
         return round(pos1.distance(pos2)) >= dist
+    
+    def pente(self,other):
+        if (other.x-self.x)==0:
+            return 0
+        return (other.y-self.y)/(other.x-self.x)
+    
+    def droiteDeuxPoints(self,p2):
+        a=self.pente(p2)
+        b=self.y-a*self.x
+        return (a,b)

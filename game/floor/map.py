@@ -35,6 +35,7 @@ class Map :
         #''''''''''''''''''''''''''
         self.generateRooms(nbRooms)
         self.reachAllRooms()
+        self.walls=[]
         self.putWall()
         for r in self._rooms :
             self.decorateRoom(r)
@@ -306,6 +307,7 @@ class Map :
                 for c2 in [Coord(c.x+1,c.y), Coord(c.x+1,c.y+1), Coord(c.x+1,c.y-1), Coord(c.x-1,c.y), Coord(c.x-1,c.y+1), Coord(c.x-1,c.y-1),  Coord(c.x,c.y+1), Coord(c.x,c.y-1)] :
                     if c2 in self  and  self[c2] == Map.empty :
                         self._mat[c2.y][c2.x] = Map.wall
+                        self.walls.append(Coord(c2.x,c2.y))
 
     # --- Plaçage des créatures ---
 
@@ -377,6 +379,37 @@ class Map :
                 sInner += cell
         return sUpper + sInner + sLower
 
+    def visible(self,coord,n):
+        posHero=self.pos(self._hero)
+        if posHero==coord:
+            return True
+        d1=posHero.droiteDeuxPoints(coord)
+
+        dir=posHero.direction(coord)
+        wallProc=Coord(0,0)
+        if posHero.distance(coord)<=n:
+            for cw in self.walls:
+                if cw in Room(posHero,coord) and posHero.distance(cw)<=posHero.distance(wallProc):
+                    wallProc=cw
+            d2=(1,wallProc.y-wallProc.x)
+            intersx=(d2[1]-d1[1])/(d1[0]-d2[0])
+            intersy=d1[0]*intersx+d1[1]
+            if not Coord(intersx,intersy) in Room(Coord(wallProc.x-0.5,wallProc.y+0.5),Coord(wallProc.x+0.5,wallProc.y-0.5)):
+                return True
+        return False
+
+    def nuageVisibilite(self,n=6):
+        tab=""
+        for j in range(self.size):
+            ligne=""
+            for i in range(self.size):
+                #print((i,j),self.pos(self.hero))
+                if self._mat[j][i]!=' ' and self.visible(Coord(i,j),n):
+                    ligne+=str(self._mat[j][i])
+                else:
+                    ligne+=' '
+            tab+=ligne+"\n"
+        return tab
 
     # ¤¤¤¤¤¤¤ METHODES DE DEPLACEMENT ¤¤¤¤¤¤ #
     def moveAllMonsters(self) :
@@ -390,15 +423,15 @@ class Map :
             orig = self[monster] #Position de actuelle du monstre
             if orig.distance(posHero) > 6 : 
                 continue
-            for _ in range(monster._speed)
-            dest = orig + orig.direction(posHero)
-            if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
-                print(f"{monster}-->{objMet}") #:Debug:#
-                if objMet == Map.ground:
-                    self[monster] = dest
-                elif Elmt.meet(monster, objMet) :
-                    self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
-                    self[monster] = dest
+            for _ in range(monster._speed):
+                dest = orig + orig.direction(posHero)
+                if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
+                    print(f"{monster}-->{objMet}") #:Debug:#
+                    if objMet == Map.ground:
+                        self[monster] = dest
+                    elif Elmt.meet(monster, objMet) :
+                        self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
+                        self[monster] = dest
 
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):

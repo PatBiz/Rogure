@@ -91,7 +91,7 @@ class _Game() :
     def update_floor_affichage (self, nuageDeVisibilite=True) :
         self._floor.uncacheAllItem()
         if nuageDeVisibilite :
-            print(self._floor.nuage())
+            print(self._floor.nuageVisibilite())
         else :
             print(self._floor)
             
