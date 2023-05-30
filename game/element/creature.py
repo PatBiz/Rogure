@@ -19,7 +19,7 @@ from utils import statically_typed_function
 
 
 class Creature (Element) : #Classe abstraite
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1 :
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1) :
         Element.__init__(self, name, abbrv)
         self._hp = hp
         self._strength = strength
