@@ -43,3 +43,7 @@ class Coord :
             return Coord(0,-1)
         else :
             return Coord(0,1)
+    
+    @staticmethod
+    def isTooFar (pos1, pos2, dist) :
+        return round(pos1.distance(pos2)) >= dist
