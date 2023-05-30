@@ -19,10 +19,11 @@ from utils import statically_typed_function
 
 
 class Creature (Element) : #Classe abstraite
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1) :
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1 :
         Element.__init__(self, name, abbrv)
         self._hp = hp
         self._strength = strength
+        self._speed = speed
 
     def description(self):
         raise NotImplementedError("Creature is an abstract class.")
@@ -39,8 +40,8 @@ class Creature (Element) : #Classe abstraite
 
 
 class Monster (Creature) :
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1) :
-        Creature.__init__(self, name, hp, abbrv, strength)
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1) :
+        Creature.__init__(self, name, hp, abbrv, strength, speed)
 
     def description(self):
         return f'<{self._name}>({self._hp})'
@@ -53,7 +54,7 @@ class Hero (Creature) :
                   abbrv: Optional[str] = '@',
                   strength: Optional[int] = 2,
                   inventory: Optional[list] = None) :
-        Creature.__init__(self, name, hp, abbrv, strength)
+        Creature.__init__(self, name, hp, abbrv, strength, speed=1)
         self._inventory = inventory or []
 
     def description (self) :
