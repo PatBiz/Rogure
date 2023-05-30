@@ -19,11 +19,15 @@ def meet (a, b) :
         return False
 
     if isinstance(b, Item) :
-        if isinstance(a, Hero) : # and inventory not full
+        if isinstance(a, Hero) :
             b.getTaken()
             return True
         Gme.theGame()._floor.cacheItem(b)
         return True
 
     a.hit(b)
-    return b.isDead()
+    if b.isDead() :
+        try : a._level += 1
+        except AttributeError : pass
+        return True
+    return False

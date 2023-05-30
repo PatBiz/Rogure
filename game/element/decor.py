@@ -2,10 +2,13 @@
 
 # Built-in modules :
 from typing import Optional
+from copy import copy
+import random as rd
 
 # Modules persos :
 import game._game as Gme
 from .elem import Element
+from .equipment import StackOfItems
 
 
 #********************************** Classes : **********************************
@@ -43,5 +46,6 @@ class Chest (FixedElement) :
 
     @staticmethod
     def action () :
-        G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
-        ... #Je le laisse pour Paul OU Timothé
+        G = Gme.theGame()
+        for _ in range(3) :
+            G._hero.take(G.randElement(G.chestContent))

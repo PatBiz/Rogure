@@ -29,7 +29,7 @@ class Item (Element) : #Classe abstraite
 
 class StackOfItems (Item) :
     def __init__ (self, name="Stack", content=Optional[list[Item]]) :
-        Element.__init__(self, name, abbrv="¤")
+        Item.__init__(self, name, abbrv="¤")
         self._content = content or []
 
     def extend (self, other) :
@@ -40,6 +40,9 @@ class StackOfItems (Item) :
         if isinstance(item, StackOfItems) :
             self.extend(item)
         self._content.append(item)
+    
+    def pop (self, indice=-1) :
+        return self._content.pop(indice)
 
     def getTaken (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
@@ -52,7 +55,7 @@ class StackOfItems (Item) :
 
 class Equipment (Item) :
     def __init__ (self , name:str , abbrv:Optional[str]=None , usage=None) :
-        Element.__init__(self, name, abbrv)
+        Item.__init__(self, name, abbrv)
         self.usage = usage
 
     def getTaken (self) :
@@ -70,4 +73,11 @@ class Equipment (Item) :
 
 
 class Gold (Item) :
-    ...
+    def __init__ (self , name:str , abbrv:Optional[str]=None , amount=1) :
+        Item.__init__(self, name, abbrv)
+        self._amount = amount
+
+    def getTaken (self) :
+        G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
+        G.addMessage(msg = f"You pick up {self._amount} coin(s)")
+        G._hero.take(self)

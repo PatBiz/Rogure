@@ -6,7 +6,7 @@ from typing import Optional
 #Modules persos :
 import game._game as Gme
 from .elem import Element
-from .equipment import Item, StackOfItems
+from .equipment import Item, StackOfItems, Gold
 
 from utils import statically_typed_function
 
@@ -53,12 +53,16 @@ class Hero (Creature) :
                   hp: Optional[int] = 10,
                   abbrv: Optional[str] = '@',
                   strength: Optional[int] = 2,
-                  inventory: Optional[list] = None) :
+                  inventory: Optional[list] = None,
+                  porte_monnaie: Optional[int]=0,
+                  level: Optional[int]=0) :
         Creature.__init__(self, name, hp, abbrv, strength, speed=1)
         self._inventory = inventory or []
+        self._porte_monnaie = porte_monnaie
+        self._level = level
 
     def description (self) :
-        return f'<{self._name}>({self._hp}){self._inventory}'
+        return f'<{self._name}>({self._hp})|{self._level}|{"{"+str(self._porte_monnaie)+"}"}{self._inventory}'
 
     def fullDescription (self) :
         s = ""
@@ -68,9 +72,17 @@ class Hero (Creature) :
         s += f"> INVENTORY : {[i._name for i in self.__dict__['_inventory']]}"
         return s
 
+    def inventoryIsFull (self) :
+        return len(self._inventory)>=10
+
     @statically_typed_function
     def take (self, item:Item) :
-        self._inventory.append(item)
+        if isinstance(item, Gold) :
+            self._porte_monnaie += item._amount
+        elif not self.inventoryIsFull() : #¤Max Inventory Length¤#
+            self._inventory.append(item)
+        else:
+            self.drop(item)
 
     @statically_typed_function
     def use (self, item:Item) :
