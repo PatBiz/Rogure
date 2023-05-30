@@ -104,7 +104,7 @@ class _Game() :
         while self._hero._hp > 0:
             print()
             print (f"--- Etage {self._level} ---")
-            self.update_floor_affichage(nuageDeVisibilite=False)
+            self.update_floor_affichage(nuageDeVisibilite=True)
             print(self._hero.description())
             print(self.readMessages())
 

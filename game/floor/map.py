@@ -200,17 +200,6 @@ class Map :
             """Regarde SI aucunes salles dans '_roomsToReach' se coupent"""
             return not (any(room.intersect(room2) for room2 in self._roomsToReach ))
 
-        def addRoom (self, room:Room):
-            """Ajoute une salle dans la map"""
-            self._roomsToReach += [room]
-
-            c0 = room.c1
-            while c0 != room.c2 :
-                self._mat[c0.y][c0.x] = Map.ground
-                nc0 = Coord( c0.x+1 , c0.y )
-                c0 = nc0   if(nc0 in room)else   Coord( room.c1.x , c0.y+1 )
-            self._mat[c0.y][c0.x] = Map.ground
-
         #-------------- ITEM :
 
         def cacheItem (self, item:Elmt.Item) :
@@ -222,26 +211,26 @@ class Map :
             self._cache[item] = coord
 
         def uncacheItem (self, item:Elmt.Item) :
-            if self._cache :
-                itemPosition = self._cache[item]
-                try : self.put_Elmt_At_Coord(item, itemPosition)
-                except ValueError : pass
-                else : del self._cache[item]
+            itemPosition = self._cache[item]
+            try : self.put_Elmt_At_Coord(item, itemPosition)
+            except ValueError : pass
+            else : del self._cache[item]
 
         def uncacheAllItem (self) :
-            for item in list(self._cache) :
-                self.uncacheItem(item)
+            if self._cache :
+                for item in list(self._cache) :
+                    self.uncacheItem(item)
 
 
     # ¤¤¤¤¤¤ METHODES DE CONSTRUCTION ¤¤¤¤¤¤ #
     # --- Génération des salles ---
 
     def randRoom (self) :
-        x1 = rd.randint(0,len(self)-3)
-        y1 = rd.randint(0,len(self)-3)
+        x1 = rd.randint(1,len(self)-3)
+        y1 = rd.randint(1,len(self)-3)
 
         c1 = Coord(              x1              ,                y1              )
-        c2 = Coord( min( x1+rd.randint(3,8) , len(self)-1 ) , min( y1+rd.randint(3,8) , len(self)-1 ) )
+        c2 = Coord( min( x1+rd.randint(3,8) , len(self)-2 ) , min( y1+rd.randint(3,8) , len(self)-2 ) )
         return Room(c1 , c2)
 
     @statically_typed_function
@@ -252,6 +241,18 @@ class Map :
                 self.addRoom(r)
 
     # --- Plaçage du sol ---
+
+    @statically_typed_function
+    def addRoom (self, room:Room):
+        """Ajoute une salle dans la map"""
+        self._roomsToReach += [room]
+
+        c0 = room.c1
+        while c0 != room.c2 :
+            self._mat[c0.y][c0.x] = Map.ground
+            nc0 = Coord( c0.x+1 , c0.y )
+            c0 = nc0   if(nc0 in room)else   Coord( room.c1.x , c0.y+1 )
+        self._mat[c0.y][c0.x] = Map.ground
 
     @statically_typed_function
     def dig(self, coord:Coord) :
@@ -329,10 +330,7 @@ class Map :
 
 
     # ¤¤¤¤¤¤¤¤¤ NUAGE DE VISIBILITE ¤¤¤¤¤¤¤¤ #
-    def isTooFar (self, coord) :
-        posHero = self._elem[self._hero]
-        return round(posHero.distance(coord)) >= 6
-
+    '''
     def nuage (self) :
         s = ""
         metWall = False
@@ -346,10 +344,43 @@ class Map :
                 metWall = True
             s += Map.empty if self.isTooFar(coord) else cell
         return s
+    '''
+    
+    def nuage (self, radius=6, cloud='~') :
+        posHero = self.get_Pos_Of_Elmt(self._hero)
+        #surfaceMap = self.size**2
+
+        nUpperLine = posHero.x - radius
+        nLowerLine = self.size - (posHero.x + radius)
+        #nInner = self.size - (nUpperLine + nLowerLine) #nombre de lignes qui peuvent être affichée
+
+        #Creation de sUpper et de sLower :
+        sUpper = (' '*self.size+'\n')*nUpperLine
+        sLower = (' '*self.size+'\n')*nLowerLine
+
+        #Création de sInner :
+        sInner = ""
+        rectInner = Room(Coord(posHero.x - radius, 0), Coord(posHero.x + radius, self.size-1))
+        rectCircle = Room(Coord(posHero.x - radius, posHero.y - radius), Coord(posHero.x + radius, posHero.y + radius))
+        metWall = 0
+        for coord in iter(rectCircle) :
+            if metWall<=1 or coord not in rectInner or Coord.isTooFar(posHero, coord, radius) :
+                sInner += cloud
+                if coord.y == self.size-1 : #On est à la fin de la ligne
+                    sInner += '\n'
+                    metWall = False
+            else :
+                print(rectCircle, coord)
+                cell = repr(self.get_Elmt_At_Coord(coord))
+                if cell == Map.wall :
+                    metWall += 1
+                sInner += cell
+        return sUpper + sInner + sLower
 
 
     # ¤¤¤¤¤¤¤ METHODES DE DEPLACEMENT ¤¤¤¤¤¤ #
     def moveAllMonsters(self) :
+        posHero = self.get_Pos_Of_Elmt(self._hero)
         for monster in list(self._elem) :
             #Si ce n'est pas une créature
             if type(monster) != Elmt.Monster : 
@@ -357,10 +388,10 @@ class Map :
 
             #Si le héro est trop loin
             orig = self[monster] #Position de actuelle du monstre
-            if orig.distance(self[self._hero]) > 6 : 
+            if orig.distance(posHero) > 6 : 
                 continue
-
-            dest = orig + orig.direction(self[self._hero])
+            for _ in range(monster._speed)
+            dest = orig + orig.direction(posHero)
             if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
                 print(f"{monster}-->{objMet}") #:Debug:#
                 if objMet == Map.ground:

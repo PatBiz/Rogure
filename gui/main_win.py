@@ -2,7 +2,7 @@
 
 # Module standard :
 import tkinter as tk
-#import pillow as pil # --> Nécessite d'importer le module 'pillow'
+import Pillow as pil # --> Nécessite d'importer le module 'pillow'
 from functools import partial
 
 #Module perso :
