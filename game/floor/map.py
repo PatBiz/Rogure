@@ -428,10 +428,10 @@ class Map :
                 if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
                     print(f"{monster}-->{objMet}") #:Debug:#
                     if objMet == Map.ground:
-                        self[monster] = dest
+                        orig=self[monster] = dest
                     elif Elmt.meet(monster, objMet) :
                         self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
-                        self[monster] = dest
+                        orig=self[monster] = dest
 
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):
