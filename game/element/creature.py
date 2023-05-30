@@ -23,7 +23,7 @@ class Creature (Element) : #Classe abstraite
         Element.__init__(self, name, abbrv)
         self._hp = hp
         self._strength = strength
-        self._speed=speed
+        self._speed = speed
 
     def description(self):
         raise NotImplementedError("Creature is an abstract class.")
