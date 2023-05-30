@@ -41,7 +41,7 @@ class Creature (Element) : #Classe abstraite
 
 class Monster (Creature) :
     def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1) :
-        Creature.__init__(self, name, hp, abbrv, strength,speed)
+        Creature.__init__(self, name, hp, abbrv, strength, speed)
 
     def description(self):
         return f'<{self._name}>({self._hp})'
