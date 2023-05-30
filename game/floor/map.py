@@ -380,15 +380,15 @@ class Map :
             orig = self[monster] #Position de actuelle du monstre
             if orig.distance(posHero) > 6 : 
                 continue
-            for _ in range(monster._speed):
+            for _ in range(monster._speed) :
                 dest = orig + orig.direction(posHero)
                 if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
                     print(f"{monster}-->{objMet}") #:Debug:#
                     if objMet == Map.ground:
-                        orig=self[monster] = dest
+                        orig = self[monster] = dest
                     elif Elmt.meet(monster, objMet) :
                         self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
-                        orig=self[monster] = dest
+                        orig = self[monster] = dest
 
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):
