@@ -332,70 +332,25 @@ class Map :
 
 
     # ¤¤¤¤¤¤¤¤¤ NUAGE DE VISIBILITE ¤¤¤¤¤¤¤¤ #
-    '''
-    def nuage (self) :
-        s = ""
-        metWall = False
-        for cell,coord in zip(self.getIterator_repr(ignoreLineBreak=False), self.getIterator_coord()):
-            if metWall :
-                if len(cell) == 2 :
-                    metWall = False
-                    s += " \n"
-                s += Map.empty
-            elif cell == Map.wall :
-                metWall = True
-            s += Map.empty if self.isTooFar(coord) else cell
-        return s
-    '''
-    
-    def nuage (self, radius=6, cloud='~') :
-        posHero = self.get_Pos_Of_Elmt(self._hero)
-        #surfaceMap = self.size**2
-
-        nUpperLine = posHero.x - radius
-        nLowerLine = self.size - (posHero.x + radius)
-        #nInner = self.size - (nUpperLine + nLowerLine) #nombre de lignes qui peuvent être affichée
-
-        #Creation de sUpper et de sLower :
-        sUpper = (' '*self.size+'\n')*nUpperLine
-        sLower = (' '*self.size+'\n')*nLowerLine
-
-        #Création de sInner :
-        sInner = ""
-        rectInner = Room(Coord(posHero.x - radius, 0), Coord(posHero.x + radius, self.size-1))
-        rectCircle = Room(Coord(posHero.x - radius, posHero.y - radius), Coord(posHero.x + radius, posHero.y + radius))
-        metWall = 0
-        for coord in iter(rectCircle) :
-            if metWall<=1 or coord not in rectInner or Coord.isTooFar(posHero, coord, radius) :
-                sInner += cloud
-                if coord.y == self.size-1 : #On est à la fin de la ligne
-                    sInner += '\n'
-                    metWall = False
-            else :
-                print(rectCircle, coord)
-                cell = repr(self.get_Elmt_At_Coord(coord))
-                if cell == Map.wall :
-                    metWall += 1
-                sInner += cell
-        return sUpper + sInner + sLower
 
     def visible(self,coord,n):
         posHero=self.pos(self._hero)
         if posHero==coord:
             return True
         d1=posHero.droiteDeuxPoints(coord)
-
-        dir=posHero.direction(coord)
-        wallProc=Coord(0,0)
-        if posHero.distance(coord)<=n:
+        if posHero.distance(coord)<=n: 
             for cw in self.walls:
-                if cw in Room(posHero,coord) and posHero.distance(cw)<=posHero.distance(wallProc):
-                    wallProc=cw
-            d2=(1,wallProc.y-wallProc.x)
-            intersx=(d2[1]-d1[1])/(d1[0]-d2[0])
-            intersy=d1[0]*intersx+d1[1]
-            if not Coord(intersx,intersy) in Room(Coord(wallProc.x-0.5,wallProc.y+0.5),Coord(wallProc.x+0.5,wallProc.y-0.5)):
-                return True
+                if d1[0]==0:
+                    if posHero.pente(cw)==0 and posHero.direction(cw)==posHero.direction(coord) and posHero.distance(cw)<=posHero.distance(coord):
+                        return False
+                elif cw in Room(posHero,coord):
+                    for x in [cw.x+0.5,cw.x-0.5]:
+                        if cw.y-0.5<=d1[0]*x+d1[1]<=cw.y+0.5:
+                            return False
+                    for y in [cw.y+0.5,cw.y-0.5]:
+                        if cw.x-0.5<=(y-d1[1])/d1[0]<=cw.x+0.5:
+                            return False
+            return True
         return False
 
     def nuageVisibilite(self,n=6):
@@ -404,7 +359,9 @@ class Map :
             ligne=""
             for i in range(self.size):
                 #print((i,j),self.pos(self.hero))
-                if self._mat[j][i]!=' ' and self.visible(Coord(i,j),n):
+                if self._mat[j][i]==self.wall or self._mat[j][i]==self.empty:
+                    ligne+=str(self._mat[j][i])
+                elif self.visible(Coord(i,j),n):
                     ligne+=str(self._mat[j][i])
                 else:
                     ligne+=' '
