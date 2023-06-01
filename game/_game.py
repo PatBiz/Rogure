@@ -1,7 +1,7 @@
 #******************************* Importations : ********************************
 
 # Built-in modules :
-from typing import Optional
+from typing import Any, Optional
 from copy import copy
 import random as rd
 
@@ -45,11 +45,21 @@ class _Game() :
         'k' : lambda hero : hero.__setattr__('_hp' , 0)
     }
 
-    def __init__(self , hero:Optional[Elmt.Hero]=None , level:int=1 , floor:Optional[Flr.Map]=None) :
+    def __init__(self , hero:Optional[Elmt.Hero]=None , floor_level:int=1 , floor:Optional[Flr.Map]=None) :
         self._hero = hero or Elmt.Hero()
-        self._level = level
+        self._floor_level = floor_level
         self._floor = floor
         self._message = []
+
+    def __getattribute__(self, __name: str) -> Any:
+        if __name == "__floor__" :
+            return self._floor
+        if __name == "__hero__" :
+            return self._hero
+        if __name == "__floor_level__" :
+            return self._floor_level
+        if __name == "__message__" :
+            return self._message
         
 
     def buildFloor (self) :
@@ -93,9 +103,10 @@ class _Game() :
         if nuageDeVisibilite :
             print(self._floor)
             print(self._floor.nuageVisibilite())
+            return self._floor.nuageVisibilite()
         else :
             print(self._floor)
-            
+            return repr(self._floor)
 
     def play(self):
         """Main game loop"""

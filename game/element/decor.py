@@ -35,7 +35,7 @@ class Stairs (FixedElement) :
     @staticmethod
     def action () :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
-        G._level += 1
+        G.__floor_level__ += 1
         G.buildFloor()
         G.addMessage(f"The {G._hero._name} goes down")
 
@@ -48,4 +48,4 @@ class Chest (FixedElement) :
     def action () :
         G = Gme.theGame()
         for _ in range(3) :
-            G._hero.take(G.randElement(G.chestContent))
+            G.__hero__.take(G.randElement(G.chestContent))

@@ -97,7 +97,7 @@ class Hero (Creature) :
             raise ValueError(f"<{self.name}> doesn't have <{item.name}>")
 
         G = Gme.theGame()
-        m = G._floor
+        m = G.__floor__
         posHero = m.get_Pos_Of_Elmt(self)
 
         cachedItem = m.get_cachedItem_At_Coord(posHero)

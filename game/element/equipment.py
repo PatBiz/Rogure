@@ -48,7 +48,7 @@ class StackOfItems (Item) :
         G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
         s = ""
         for item in self :
-            G._hero.take(item)
+            G.__hero__.take(item)
             s += f" a {self._name},"
         G.addMessage(msg = f"You pick up{s}")
 
@@ -61,7 +61,7 @@ class Equipment (Item) :
     def getTaken (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
         G.addMessage(msg = f"You pick up a {self._name}")
-        G._hero.take(self)
+        G.__hero__.take(self)
 
     def getUse (self , creature) :
         if self.usage :
