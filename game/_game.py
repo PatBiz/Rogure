@@ -1,7 +1,7 @@
 #******************************* Importations : ********************************
 
 # Built-in modules :
-from typing import Any, Optional
+from typing import Optional
 from copy import copy
 import random as rd
 
@@ -21,7 +21,7 @@ from utils import getch
 
 
 class _Game() :
-    equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Equipment("gold","o") ],
+    equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
                   1: [ Elmt.Equipment("sword"), Elmt.Equipment("bow"), Elmt.Equipment("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)) ],
                   2: [ Elmt.Equipment("chainmail") ],
                   3: [ Elmt.Equipment("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)) ]
@@ -45,26 +45,41 @@ class _Game() :
         'k' : lambda hero : hero.__setattr__('_hp' , 0)
     }
 
+    __slot__ = ("buildFloor", "addMessage", "readMessages", "randElement", "randEquipment", "randMonster", "select", "update_floor_affichage", "play")
+
     def __init__(self , hero:Optional[Elmt.Hero]=None , floor_level:int=1 , floor:Optional[Flr.Map]=None) :
         self._hero = hero or Elmt.Hero()
-        self._floor_level = floor_level
         self._floor = floor
+        self._floor_level = floor_level
         self._message = []
 
-    def __getattribute__(self, __name: str) -> Any:
-        if __name == "__floor__" :
-            return self._floor
-        if __name == "__hero__" :
+    def __getattr__(self, __name: str) :
+        if __name in {"__hero__", "_hero"} :
             return self._hero
-        if __name == "__floor_level__" :
+        if __name in {"__floor__", "_floor"} :
+            return self._floor
+        if __name in {"__floor_level__", "_floor_level"} :
             return self._floor_level
-        if __name == "__message__" :
+        if __name in {"__message__", "_message"} :
             return self._message
+
+        return self.__dict__[__name]
+
+    def __setattr__(self, __name:str, __value) :
+        if __name in {"__hero__", "_hero"} :
+            self.__dict__["_hero"] = __value
+        if __name in {"__floor__", "_floor"} :
+            self.__dict__["_floor"] = __value
+        if __name in {"__floor_level__", "_floor_level"} :
+            self.__dict__["_floor_level"] = __value
+        if __name in {"__message__", "_message"} :
+            self.__dict__["_message"] = __value
         
+        self.__dict__[__name] = __value
 
     def buildFloor (self) :
         m = self._floor = Flr.Map(hero = self._hero)
-        m.put_Elmt_At_Coord(Elmt.Stairs(), m._rooms[-1].center())
+        m.put_Elmt_At_Coord(Elmt.Stairs(), m._rooms[-2].center())
 
     def addMessage(self , msg:str) :
         self._message.append(msg)
@@ -77,7 +92,7 @@ class _Game() :
         return ""
 
     def randElement (self , collection) :
-        X = rd.expovariate(1/self._level)
+        X = rd.expovariate(1/self._floor_level)
         for rarity in collection.keys() :
             if rarity > X : break
             rarityMax = rarity
@@ -104,9 +119,21 @@ class _Game() :
             print(self._floor)
             print(self._floor.nuageVisibilite())
             return self._floor.nuageVisibilite()
-        else :
-            print(self._floor)
-            return repr(self._floor)
+        print(self._floor)
+        return repr(self._floor)
+    
+    def update_effects(self):
+        Hstatut = self._hero._statut
+        eff=0
+        while eff<len(Hstatut):
+            apply=Flr.room.TrapRoom.trapTypes[Hstatut[eff][0]][0]
+            apply(self._hero,Hstatut[eff][1])
+            Hstatut[eff][2]-=1
+            if not Hstatut[eff][2]:
+                Hstatut.pop(eff)
+            else:
+                eff+=1
+
 
     def play(self):
         """Main game loop"""
@@ -115,12 +142,14 @@ class _Game() :
         
         while self._hero._hp > 0:
             print()
-            print (f"--- Etage {self._level} ---")
+            print (f"--- Etage {self._floor_level} ---")
             self.update_floor_affichage(nuageDeVisibilite=True)
             print(self._hero.description())
             print(self.readMessages())
 
             c = getch()
+            if c!="i":
+                self.update_effects() 
             if c in _Game.actions:
                 _Game.actions[c](self._hero)
             self._floor.moveAllMonsters()

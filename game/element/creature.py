@@ -40,8 +40,9 @@ class Creature (Element) : #Classe abstraite
 
 
 class Monster (Creature) :
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1) :
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1, giveXp=0) :
         Creature.__init__(self, name, hp, abbrv, strength, speed)
+        self.giveXp = int(hp*strength/2) if not giveXp else giveXp
 
     def description(self):
         return f'<{self._name}>({self._hp})'
@@ -50,26 +51,32 @@ class Monster (Creature) :
 class Hero (Creature) :
     def __init__ (self,
                   name: Optional[str] = 'Hero',
-                  hp: Optional[int] = 10,
+                  hp: Optional[int] = 50,
                   abbrv: Optional[str] = '@',
-                  strength: Optional[int] = 2,
+                  strength: Optional[int] = 40,
                   inventory: Optional[list] = None,
                   porte_monnaie: Optional[int]=0,
-                  level: Optional[int]=0) :
+                  level: Optional[int]=0,
+                  xp = 0,
+                  seuilXp=10) :
         Creature.__init__(self, name, hp, abbrv, strength, speed=1)
         self._inventory = inventory or []
         self._porte_monnaie = porte_monnaie
         self._level = level
+        self.xp = xp
+        self.seuilXp = seuilXp
+        self._statut=[]
 
     def description (self) :
-        return f'<{self._name}>({self._hp})|{self._level}|{"{"+str(self._porte_monnaie)+"}"}{self._inventory}'
+        return f'<{self._name}>({self._hp})|{self._level}|xp: {self.xp}/{self.seuilXp}{"{"+str(self._porte_monnaie)+"}"}{self._inventory}'
 
     def fullDescription (self) :
         s = ""
         for attr , attrValue in self.__dict__.items() :
-            if attr != '_inventory' :
+            if not attr in ['_inventory', '_statut'] :
                 s += f"> {attr[1:] if attr[0]=='_' else attr} : {attrValue}\n"
-        s += f"> INVENTORY : {[i._name for i in self.__dict__['_inventory']]}"
+        s += "> STATUT : "+str([[eff[0],str(eff[1])+' dmg',str(eff[2])+' rounds'] for eff in self._statut])+"\n" 
+        s += f"> INVENTORY : {[i._name for i in self.__dict__['_inventory']]}\n"
         return s
 
     def inventoryIsFull (self) :
@@ -87,14 +94,14 @@ class Hero (Creature) :
     @statically_typed_function
     def use (self, item:Item) :
         if item not in self._inventory :
-            raise ValueError(f"<{self.name}> doesn't have <{item.name}>")
+            raise ValueError(f"<{self._name}> doesn't have <{item._name}>")
         if item.getUse(self) :
             self._inventory.remove(item)
 
     @statically_typed_function
     def drop (self, item:Item) :
         if item not in self._inventory :
-            raise ValueError(f"<{self.name}> doesn't have <{item.name}>")
+            raise ValueError(f"<{self._name}> doesn't have <{item._name}>")
 
         G = Gme.theGame()
         m = G.__floor__

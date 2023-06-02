@@ -47,3 +47,20 @@ class Room :
         X = rd.randint(self.c1.x , self.c2.x)
         Y = rd.randint(self.c1.y , self.c2.y)
         return Coord(X , Y)
+    
+
+class ShopRoom(Room):
+    def __init__(self,c1,c2):
+        Room.__init__(self,c1,c2)
+
+
+
+class TrapRoom(Room):
+    trapTypes={"burned": (lambda creature, power : creature.takeDamage(power), 4),
+                "paralized": (lambda a,b : print("Cc"),4), 
+                "poisoned": (lambda creature, power : creature.takeDamage(power), 3)}        #Tours +1
+
+    def __init__(self,c1,c2,nbTraps=2,trapTypesUsed=None):
+        Room.__init__(self,c1,c2)
+        self.nbTraps=nbTraps
+        self.trapTypesUsed=trapTypesUsed

@@ -6,6 +6,8 @@ from typing import Optional
 # Modules persos :
 import game._game as Gme
 from .elem import Element
+from floor.room import TrapRoom
+import floor as Flr
 
 from utils import statically_typed_function
 
@@ -80,4 +82,19 @@ class Gold (Item) :
     def getTaken (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
         G.addMessage(msg = f"You pick up {self._amount} coin(s)")
-        G._hero.take(self)
+        G.__hero__.take(self)
+
+class Trap(Item):
+    def __init__(self, name="Trap", abbrv="_", effect=None, power=0):
+        Item.__init__(self,name, Flr.Map.ground if abbrv=="_" else abbrv)
+        self.effect=effect
+        self.power=power
+        self.actived=True
+
+    def action(self):
+        if self.actived:
+            G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
+            G._hero._statut.append([self.effect,self.power,TrapRoom.trapTypes[self.effect][1]])      #Effet, puissance, temps(en tours)
+            G.addMessage(f"The {G._hero._name} is {self.effect}")
+            self.actived=False
+            return True

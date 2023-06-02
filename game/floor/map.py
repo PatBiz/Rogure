@@ -8,7 +8,11 @@ import random as rd
 import game._game as Gme
 from .coord import Coord
 from .room import Room
+from .room import TrapRoom
+from .room import ShopRoom
 import element as Elmt #Obligé de l'importer ainsi car 'element' a besoin de 'game' qui lui même a besoin de 'map' => "circular import"
+from element.decor import Shop
+from element.equipment import Trap
 
 from utils import statically_typed_function, apply_decorators
 
@@ -37,6 +41,10 @@ class Map :
         self.reachAllRooms()
         self.walls=[]
         self.putWall()
+        print(len(self._rooms))
+        lvlFloor=Gme.theGame().__floor_level__
+        if lvlFloor>=5 and not (lvlFloor-5)%3:
+            self.put_Elmt_At_Coord(Shop(),self._rooms[-1].center())
         for r in self._rooms :
             self.decorateRoom(r)
         #..........................
@@ -45,6 +53,7 @@ class Map :
         self._hero = hero or Elmt.Hero()
         #''''''''''''''''''''''''''
         self.put_Elmt_At_Coord(self._hero , self.posHeroDepart)
+        
         #..........................
 
     # ¤¤¤¤¤¤¤¤¤¤ CLASS ATTRIBUTES ¤¤¤¤¤¤¤¤¤¤ #
@@ -232,14 +241,26 @@ class Map :
 
         c1 = Coord(              x1              ,                y1              )
         c2 = Coord( min( x1+rd.randint(3,8) , len(self)-2 ) , min( y1+rd.randint(3,8) , len(self)-2 ) )
-        return Room(c1 , c2)
+        return rd.choice([Room(c1 , c2),TrapRoom(c1,c2)])
+    
+    def randShop(self):
+        x1 = rd.randint(1,len(self)-3)
+        y1 = rd.randint(1,len(self)-3)
 
+        c1 = Coord(              x1              ,                y1              )
+        c2 = Coord( min( x1+rd.randint(3,8) , len(self)-2 ) , min( y1+rd.randint(3,8) , len(self)-2 ) )
+        return ShopRoom(c1,c2)
+    
     @statically_typed_function
     def generateRooms(self, n:int) :
-        for _ in range(n) :
-            r = self.randRoom()
-            if self.intersectNone(r) :
-                self.addRoom(r)
+        lvlFloor=Gme.theGame().__floor_level__
+        if lvlFloor>=5 and not (lvlFloor-5)%3:
+            self.addRoom(self.randShop())
+        while len(self._roomsToReach)<3:
+            for _ in range(n) :
+                r = self.randRoom()
+                if self.intersectNone(r) :
+                    self.addRoom(r)
 
     # --- Plaçage du sol ---
 
@@ -265,7 +286,7 @@ class Map :
         #Retire la salle qui contient le point de coordonnée 'coord'
         if r := self.findRoom(coord):
             self._roomsToReach.pop(self._roomsToReach.index(r))
-            self._rooms.append(r)
+            self._rooms = [r]+self._rooms
 
     @statically_typed_function
     def corridor (self, start:Coord, end:Coord) :
@@ -320,6 +341,13 @@ class Map :
         while self.get_Elmt_At_Coord(c) is not Map.ground  or  c==r.center():
             c = r.randCoord()
         return c
+    
+    def roomToTrap(self,r):
+        for n in range(r.nbTraps):
+            eff=rd.choice([t for t in TrapRoom.trapTypes.keys()]) if r.trapTypesUsed==None else rd.choice(r.trapTypesUsed)
+            pow=rd.randint(1,3) if eff!="paralized" else 0
+            self.put(self.randEmptyCoordInRoom(r), Trap(effect=eff,power=pow))
+
 
     def decorateRoom(self, r) :
         """
@@ -327,8 +355,11 @@ class Map :
         Ancien emplacement : classe 'Room'
         """
         G = Gme.theGame()
-        self.put(self.randEmptyCoordInRoom(r) , G.randEquipment())
-        self.put(self.randEmptyCoordInRoom(r) , G.randMonster())
+        if not isinstance(r,ShopRoom):
+            self.put(self.randEmptyCoordInRoom(r) , G.randEquipment())
+            self.put(self.randEmptyCoordInRoom(r) , G.randMonster())
+            if isinstance(r,TrapRoom):
+                self.roomToTrap(r)
 
 
     # ¤¤¤¤¤¤¤¤¤ NUAGE DE VISIBILITE ¤¤¤¤¤¤¤¤ #
@@ -392,6 +423,8 @@ class Map :
 
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):
+        if "paralized" in [eff[0] for eff in self._hero._statut]:
+            return False
         orig = self[hero]
         dest = orig + direc       
         if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
