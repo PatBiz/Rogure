@@ -8,6 +8,7 @@ import random as rd
 # Modules persos :
 import game._game as Gme
 from .elem import Element
+from .equipment import Equipment
 from .equipment import StackOfItems
 
 
@@ -42,15 +43,23 @@ class Stairs (FixedElement) :
 
 
 class Chest (FixedElement) :
-    def __init__ (self , name: Optional[str] = 'Chest') :
+    def __init__ (self , name: Optional[str] = 'Chest', key=Equipment('key','*'), opened=False) :
         FixedElement.__init__(self, name, 'm')
+        self.key = key
+        self.opened = opened
 
-    @staticmethod
-    def action () :
+    #@staticmethod
+    def action (self) :
         G = Gme.theGame()
-        for _ in range(3) :
-            G.__hero__.take(G.randElement(G.chestContent))
-
+        if self.opened:
+            G.addMessage("This chest is already opened")
+        elif self.key in G._hero._inventory:
+            G._hero._inventory.pop(G._hero._inventory.index(self.key))
+            chestContent = [G.randElement(G.equipments) for _ in range(3)]
+            StackOfItems(content=chestContent).getTaken()
+            self.opened = True
+        else:
+            G.addMessage("A key is necessary")
 
 class Shop(FixedElement):
     def __init__(self, name="Shop", abbrv="$"):

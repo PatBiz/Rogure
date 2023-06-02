@@ -15,5 +15,4 @@ import Initialize
 from game import theGame
 
 
-theGame().buildFloor()
 theGame().play()
