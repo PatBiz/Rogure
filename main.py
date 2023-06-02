@@ -17,3 +17,7 @@ from game import theGame
 
 theGame().buildFloor()
 theGame().play()
+
+rCellInRange_repr = theGame().__floor__.nuageVisibilite().split('\n')
+
+print(rCellInRange_repr)

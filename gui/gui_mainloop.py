@@ -1,10 +1,10 @@
 import pygame
 
-from gui.pygame_utils.triggers import Trigger, Printer
+from pygame_utils import Trigger
 import loops
 import win_init
+import env_var as ev
 
-from game import theGame
 
 # Initialisation de la fenêtre d'affichage du jeu :
 
@@ -15,6 +15,7 @@ icon = pygame.image.load("gui/assets/rogure_icon.png").convert()
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Rogure')
 
+win_init.mainMenuInit(screen)
 
 # Boucle Principale :
 
@@ -24,19 +25,18 @@ Hypothèse d'implémentation dans 'main.py' :
     - faire comme 'gui_tester.py'
 """
 
-game = theGame()
-
-status = Trigger.InMainMenu
-list_Buttons = win_init.mainMenuInit(screen)
 while True :
-    match status :
+    match ev.status :
         case Trigger.InMainMenu :
             loops.mainMenuLoop(screen)
         case Trigger.InGame :
-            loops.inGameLoop(screen)
+            loops.gameLoop(screen)
+            ...
         case Trigger.InInventory :
-            loops.inInventoryLoop(screen)
+            loops.inventoryLoop(screen)
         #case InLoading :
+        #    ...
+        #case InShop :
         #    ...
         case None :
             pygame.quit()
