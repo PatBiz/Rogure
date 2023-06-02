@@ -22,9 +22,9 @@ from utils import getch
 
 class _Game() :
     equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
-                  1: [ Elmt.Equipment("sword"), Elmt.Equipment("bow"), Elmt.Equipment("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)) ],
-                  2: [ Elmt.Equipment("chainmail") ],
-                  3: [ Elmt.Equipment("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)) ]
+                  1: [ Elmt.equipment.Wearable("sword","weapon",("strength",3)), Elmt.Equipment("bow"), Elmt.Equipment("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)), Elmt.Gold("gold","o",3) ],
+                  2: [ Elmt.equipment.Wearable("chainmail","armor",("defense",3)), Elmt.Gold("gold","o",5) ],
+                  3: [ Elmt.Equipment("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)), Elmt.Gold("gold","o",7) ]
     }
     monsters = {0: [ Elmt.Monster("Goblin",4), Elmt.Monster("Bat",2,"W") ],
                 1: [ Elmt.Monster("Ork",6,strength=2), Elmt.Monster("Blob",10) ],
@@ -93,7 +93,7 @@ class _Game() :
 
     def randElement (self , collection) :
         X = rd.expovariate(1/self._floor_level)
-        for rarity in collection.keys() :
+        for rarity in collection :
             if rarity > X : break
             rarityMax = rarity
         return copy(rd.choice(collection[rarityMax]))

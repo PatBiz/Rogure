@@ -6,11 +6,13 @@ import random as rd
 
 # Modules persos :
 import game._game as Gme
+import game.element as Elmt  
 from .coord import Coord
 from .room import Room
 from .room import TrapRoom
 from .room import ShopRoom
 import element as Elmt #Obligé de l'importer ainsi car 'element' a besoin de 'game' qui lui même a besoin de 'map' => "circular import"
+from element.decor import Chest
 from element.decor import Shop
 from element.equipment import Trap
 
@@ -26,7 +28,7 @@ from utils import statically_typed_function, apply_decorators
 
 class Map :
     @statically_typed_function
-    def __init__ (self, size: Optional[int] =20, pos: Optional[Coord] =Coord(1,1), nbRooms: Optional[int] =7, hero: Optional[Elmt.Hero] =None) :  #########
+    def __init__ (self, size: Optional[int] =25, pos: Optional[Coord] =Coord(1,1), nbRooms: Optional[int] =7, hero: Optional[Elmt.Hero] =None) :  #########
 
         self.size = size
         self._mat = [[Map.empty]*size for _ in range (size)]
@@ -41,12 +43,21 @@ class Map :
         self.reachAllRooms()
         self.walls=[]
         self.putWall()
-        print(len(self._rooms))
         lvlFloor=Gme.theGame().__floor_level__
         if lvlFloor>=5 and not (lvlFloor-5)%3:
             self.put_Elmt_At_Coord(Shop(),self._rooms[-1].center())
         for r in self._rooms :
             self.decorateRoom(r)
+        if lvlFloor>=3 and not lvlFloor%3:
+            r = rd.choice(self._rooms[1:-2])
+            chest = Chest()
+            if self.get_Elmt_At_Coord(r.center())!=self.ground:
+                self.remove_Elmt_At_Coord(r.center())
+            self.put_Elmt_At_Coord(chest,r.center())
+            guardKey = rd.choice([e for e in self._elem])
+            while not isinstance(guardKey,Elmt.Monster):
+                guardKey = rd.choice([e for e in self._elem])
+            guardKey.loot = chest.key
         #..........................
 
         self.posHeroDepart = self._rooms[0].center() #Spawn pour peut-être mettre une fonctionnalité de respawn
@@ -135,7 +146,7 @@ class Map :
 
         def get_cachedItem_At_Coord (self, coord:Coord) :
             for item in self._cache :
-                if self[item] == coord :
+                if self[item] and self[item] == coord :
                     return item
 
         def get_Pos_Of_Elmt (self, elem:Elmt.Element) :
@@ -236,16 +247,16 @@ class Map :
     # --- Génération des salles ---
 
     def randRoom (self) :
-        x1 = rd.randint(1,len(self)-3)
-        y1 = rd.randint(1,len(self)-3)
+        x1 = rd.randint(1,len(self)-5)
+        y1 = rd.randint(1,len(self)-5)
 
         c1 = Coord(              x1              ,                y1              )
         c2 = Coord( min( x1+rd.randint(3,8) , len(self)-2 ) , min( y1+rd.randint(3,8) , len(self)-2 ) )
         return rd.choice([Room(c1 , c2),TrapRoom(c1,c2)])
     
     def randShop(self):
-        x1 = rd.randint(1,len(self)-3)
-        y1 = rd.randint(1,len(self)-3)
+        x1 = rd.randint(1,len(self)-5)
+        y1 = rd.randint(1,len(self)-5)
 
         c1 = Coord(              x1              ,                y1              )
         c2 = Coord( min( x1+rd.randint(3,8) , len(self)-2 ) , min( y1+rd.randint(3,8) , len(self)-2 ) )
@@ -256,7 +267,7 @@ class Map :
         lvlFloor=Gme.theGame().__floor_level__
         if lvlFloor>=5 and not (lvlFloor-5)%3:
             self.addRoom(self.randShop())
-        while len(self._roomsToReach)<3:
+        while len(self._roomsToReach)<4:
             for _ in range(n) :
                 r = self.randRoom()
                 if self.intersectNone(r) :
@@ -345,7 +356,7 @@ class Map :
     def roomToTrap(self,r):
         for n in range(r.nbTraps):
             eff=rd.choice([t for t in TrapRoom.trapTypes.keys()]) if r.trapTypesUsed==None else rd.choice(r.trapTypesUsed)
-            pow=rd.randint(1,3) if eff!="paralized" else 0
+            pow=rd.randint(1,2) if eff!="paralized" else 0
             self.put(self.randEmptyCoordInRoom(r), Trap(effect=eff,power=pow))
 
 
@@ -404,6 +415,19 @@ class Map :
         return tab
 
     # ¤¤¤¤¤¤¤ METHODES DE DEPLACEMENT ¤¤¤¤¤¤ #
+    def findPath(self,monster,dest):
+        orig = self[monster]
+        if (dest in self)  and  (((objMet := self[dest]) == Map.ground)  or  (isinstance(objMet,Elmt.Element))) and not isinstance(objMet,Elmt.FixedElement) :
+                    print(f"{monster}-->{objMet}") #:Debug:#
+                    if objMet == Map.ground:
+                        orig = self[monster] = dest
+                    elif Elmt.meet(monster, objMet) :
+                        self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
+                        orig = self[monster] = dest
+                    return True
+        return False
+
+
     def moveAllMonsters(self) :
         posHero = self.get_Pos_Of_Elmt(self._hero)
         for monster in list(self._elem) :
@@ -416,14 +440,15 @@ class Map :
             if orig.distance(posHero) > 6 : 
                 continue
             for _ in range(monster._speed) :
-                dest = orig + orig.direction(posHero)
-                if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
-                    print(f"{monster}-->{objMet}") #:Debug:#
-                    if objMet == Map.ground:
-                        orig = self[monster] = dest
-                    elif Elmt.meet(monster, objMet) :
-                        self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
-                        orig = self[monster] = dest
+                if not self.findPath(monster,orig + orig.direction(posHero)):
+                    if orig.direction(posHero) in [Coord(1,0),Coord(-1,0)]:
+                        otherPath = [Coord(0,1),Coord(0,-1)]
+                    else:
+                        otherPath = [Coord(1,0),Coord(-1,0)]
+                    for path in otherPath:
+                        if posHero.distance(orig+path)<posHero.distance(orig):
+                            self.findPath(monster,orig+path)
+
 
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):

@@ -49,10 +49,10 @@ class StackOfItems (Item) :
     def getTaken (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
         s = ""
-        for item in self :
+        for item in self._content :
             G.__hero__.take(item)
-            s += f" a {self._name},"
-        G.addMessage(msg = f"You pick up{s}")
+            s += f" a {item._name},"
+        G.addMessage(msg = f"You pick up{s[:-1]}")
 
 
 class Equipment (Item) :
@@ -72,6 +72,25 @@ class Equipment (Item) :
 
         Gme.theGame().addMessage(msg = f"The {self._name} is not usable")
         return False
+    
+class Wearable(Equipment):
+    """A wearable equipment."""
+    def __init__(self, name, place, effect, abbrv="", usage=None):
+        Equipment.__init__(self, name, abbrv, usage)
+        self.place = place
+        self.effect = effect
+
+    def applyEffect(self,creature):
+        if self.effect[0]=="strength":
+            creature._strength += self.effect[1]
+        elif self.effect[0]=="defense":
+            creature._defense += self.effect[1]
+
+    def removeEffect(self,creature):
+        if self.effect[0]=="strength":
+            creature._strength -= self.effect[1]
+        elif self.effect[0]=="defense":
+            creature._defense -= self.effect[1]
 
 
 class Gold (Item) :
