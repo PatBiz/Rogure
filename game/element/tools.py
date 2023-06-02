@@ -34,8 +34,7 @@ def meet (a, b) :
         if isinstance(a,Hero):
             a.xp += b.giveXp
             if a.xp>=a.seuilXp:
-                a.xp-=a.seuilXp
-                a.seuilXp*=2
-                a._level+=1
+                a.levelUp()
+            b.dropLoot()
         return True
     return False

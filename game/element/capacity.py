@@ -6,13 +6,15 @@ import random as rd
 #Module perso :
 import game._game as Gme
 from .creature import Creature
+from .creature import Hero
 
 
 #******************************** Fonctions : **********************************
 
 def heal (creature:Creature):
-    creature._hp += 3
-    return True
+    if isinstance(creature,Hero):
+        creature._hp = creature._hpMax if creature._hp + 3>creature._hpMax else creature._hp + 3
+        return True
 
 def teleport(creature:Creature, unique:bool) :
     m = Gme.theGame().__floor__

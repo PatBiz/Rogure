@@ -6,7 +6,7 @@ from typing import Optional
 #Modules persos :
 import game._game as Gme
 from .elem import Element
-from .equipment import Item, StackOfItems, Gold
+from .equipment import Item, StackOfItems, Gold, Wearable
 
 from utils import statically_typed_function
 
@@ -40,35 +40,46 @@ class Creature (Element) : #Classe abstraite
 
 
 class Monster (Creature) :
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1, giveXp=0) :
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1, giveXp=0, loot=None) :
         Creature.__init__(self, name, hp, abbrv, strength, speed)
         self.giveXp = int(hp*strength/2) if not giveXp else giveXp
+        self.loot = loot
 
     def description(self):
         return f'<{self._name}>({self._hp})'
+    
+    def dropLoot(self):
+        if self.loot!=None:
+            Gme.theGame()._hero.take(self.loot)
 
 
 class Hero (Creature) :
     def __init__ (self,
                   name: Optional[str] = 'Hero',
-                  hp: Optional[int] = 50,
+                  hp: Optional[int] = 10,
                   abbrv: Optional[str] = '@',
                   strength: Optional[int] = 40,
+                  defense = 3,
                   inventory: Optional[list] = None,
                   porte_monnaie: Optional[int]=0,
                   level: Optional[int]=0,
                   xp = 0,
-                  seuilXp=10) :
+                  seuilXp=10,
+                  hpMax = None) :
         Creature.__init__(self, name, hp, abbrv, strength, speed=1)
+        self._hpMax = hp if hpMax==None else hpMax
+        self._defense = defense
         self._inventory = inventory or []
         self._porte_monnaie = porte_monnaie
         self._level = level
         self.xp = xp
         self.seuilXp = seuilXp
         self._statut=[]
+        self.weapon = None
+        self.armor = [None,None]
 
     def description (self) :
-        return f'<{self._name}>({self._hp})|{self._level}|xp: {self.xp}/{self.seuilXp}{"{"+str(self._porte_monnaie)+"}"}{self._inventory}'
+        return f'<{self._name}>({self._hp}/{self._hpMax})|{self._level}|xp: {self.xp}/{self.seuilXp}{"{"+str(self._porte_monnaie)+"}"}{self._inventory}'
 
     def fullDescription (self) :
         s = ""
@@ -80,22 +91,25 @@ class Hero (Creature) :
         return s
 
     def inventoryIsFull (self) :
-        return len(self._inventory)>=10
+        return len(self._inventory)>10
 
     @statically_typed_function
     def take (self, item:Item) :
         if isinstance(item, Gold) :
             self._porte_monnaie += item._amount
-        elif not self.inventoryIsFull() : #¤Max Inventory Length¤#
-            self._inventory.append(item)
         else:
-            self.drop(item)
+            self._inventory.append(item)    
+            if self.inventoryIsFull() : #¤Max Inventory Length¤#
+                self.drop(item)
 
     @statically_typed_function
     def use (self, item:Item) :
         if item not in self._inventory :
             raise ValueError(f"<{self._name}> doesn't have <{item._name}>")
-        if item.getUse(self) :
+        if isinstance(item,Wearable):
+            self.wear(item)
+            self._inventory.remove(item)
+        elif item.getUse(self) :
             self._inventory.remove(item)
 
     @statically_typed_function
@@ -108,7 +122,7 @@ class Hero (Creature) :
         posHero = m.get_Pos_Of_Elmt(self)
 
         cachedItem = m.get_cachedItem_At_Coord(posHero)
-        if m.get_cachedItem_At_Coord(posHero) :
+        if cachedItem :
             if isinstance(cachedItem, StackOfItems) :
                 cachedItem.append(item)
                 item = cachedItem
@@ -117,3 +131,45 @@ class Hero (Creature) :
 
         self._inventory.remove(item)
         m.cacheItem_At_Coord(item, posHero)
+        G.addMessage(f"{self._name} drops {item._name}")
+
+    def hpPourcent(self):
+        return self._hp*100//self._hpMax
+    
+    def levelUp(self):
+        self.xp-=self.seuilXp
+        self.seuilXp*=2
+        self._level+=1
+        self._hpMax += 3
+        self._hp = self._hpMax
+        if not self._level%2 and self._level>1:
+            self._strength += 1
+
+    
+    def wear(self, equipment):
+        if equipment.place=="weapon":
+            if self.weapon!=None:
+                self.unwear("weapon",None)
+            self.weapon = equipment
+        elif equipment.place=="helmet":
+            if self.armor[0]!=None:
+                self.unwear("armor",0)
+            self.armor[0] = equipment
+        else:
+            if self.armor[1]!=None:
+                self.unwear("armor",1)
+            self.armor[1] = equipment
+        equipment.applyEffect(self)
+
+    def unwear(self,place,index):
+        if place=="weapon":
+            if self.weapon!=None:
+                equipment = self.weapon
+                self.take(self.weapon)
+                self.weapon = None
+        if place=="armor":
+            if self.armor[index]!=None:
+                equipment = self.armor[index]
+                self.take(self.armor[index])
+                self.armor[index] = None
+        equipment.removeEffect(self)
