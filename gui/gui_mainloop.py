@@ -10,7 +10,7 @@ import env_var as ev
 
 pygame.init()
 
-screen = pygame.display.set_mode(size=(1180,700))
+screen = pygame.display.set_mode(size=(1300,700))
 icon = pygame.image.load("gui/assets/rogure_icon.png").convert()
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Rogure')

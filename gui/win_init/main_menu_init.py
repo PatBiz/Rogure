@@ -17,19 +17,19 @@ def mainMenuInit (screen) :
     BgTitleImage = pygame.image.load("gui/assets/background/mainMenu_Background.jpg").convert()
 
     startButton= Button(path="gui/assets/Buttons/main_menu/start_button.png",
-                        pos=(495,250),
+                        pos=(545,250),
                         action=partial(start_rogure, screen))
     loadButton = Button(path="gui/assets/Buttons/main_menu/load_button.png",
-                        pos=(500,345),
+                        pos=(550,345),
                         action=partial(load_rogure, screen))
     quitButton = Button(path="gui/assets/Buttons/main_menu/quit_button.png",
-                        pos=(505,440),
+                        pos=(555,440),
                         action=quit_rogure)
 
     # Insertion des composants sur la fenêtre :
 
     screen.blit(BgTitleImage, (0,0))
-    screen.blit(TitleImage, (350,20))
+    screen.blit(TitleImage, (400,20))
     screen.blit(startButton.img, startButton.rect)
     screen.blit(loadButton.img, loadButton.rect)
     screen.blit(quitButton.img, quitButton.rect)
