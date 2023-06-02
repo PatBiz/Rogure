@@ -134,7 +134,6 @@ class _Game() :
             else:
                 eff+=1
 
-
     def play(self):
         """Main game loop"""
         self.buildFloor()

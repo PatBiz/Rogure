@@ -375,7 +375,11 @@ class Map :
 
     # ¤¤¤¤¤¤¤¤¤ NUAGE DE VISIBILITE ¤¤¤¤¤¤¤¤ #
 
-    def visible(self,coord,n):
+    def get_VisibleZone (self, n=6) :
+        posHero = self._elem[self._hero]
+        return Room( Coord(posHero.x-n, posHero.y-n) , Coord(posHero.x+n, posHero.y+n) )
+
+    def isVisible(self,coord,n=6):
         posHero=self.pos(self._hero)
         if posHero==coord:
             return True
@@ -401,9 +405,9 @@ class Map :
             ligne=""
             for i in range(self.size):
                 #print((i,j),self.pos(self.hero))
-                if self._mat[j][i]==self.wall or self._mat[j][i]==self.empty:
+                if self._mat[j][i] in [self.wall, self.empty]:
                     ligne+=str(self._mat[j][i])
-                elif self.visible(Coord(i,j),n):
+                elif self.isVisible(Coord(i,j),n):
                     ligne+=str(self._mat[j][i])
                 else:
                     ligne+=' '

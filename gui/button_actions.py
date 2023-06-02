@@ -2,7 +2,6 @@ import pygame
 
 
 from pygame_utils import GameClosureException, Trigger
-
 import win_init
 
 #-------------------------------------------------------------------------------
@@ -12,11 +11,11 @@ import win_init
 
 def start_rogure (screen):
     print ("Start")
-    return Trigger.InGame, win_init.gameInit(screen)
+    return win_init.gameInit(screen)
 
 def load_rogure (screen) :
     print ("Load")
-    return Trigger.InLoading#, win_init.loadInit(screen)
+    return #win_init.loadInit(screen)
 
 def quit_rogure () :
     print ("Quit")
@@ -30,13 +29,13 @@ def quit_rogure () :
 
 def open_inventory (screen) :
     print("Open Inventory")
-    return Trigger.InInventory, win_init.inventoryInit(screen)
+    return win_init.inventoryInit(screen)
 
 # ------- Inventory :
 
 def close_inventory (screen):
     print("Close Inventory")
-    return Trigger.InGame, win_init.gameInit(screen)
+    return win_init.gameInit(screen)
 
 def equip (screen, item_indice) : #Si clic inventaire
     print(f"Equipping Item{item_indice}")

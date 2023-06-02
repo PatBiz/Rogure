@@ -1,12 +1,15 @@
 import pygame
 from functools import partial
 
-from pygame_utils import Button
+from pygame_utils import Button, Trigger
 from button_actions import start_rogure, load_rogure, quit_rogure
+
+import env_var as ev
+
 
 def mainMenuInit (screen) :
 
-    """ Initialise la fenêtre de démarrage ET renvoie la liste des boutons. """
+    """ Initialise le contenu de la fenêtre de démarrage ET actualise la liste des boutons. """
 
     # Création des composants de la fenêtre :
 
@@ -32,4 +35,5 @@ def mainMenuInit (screen) :
     screen.blit(quitButton.img, quitButton.rect)
     pygame.display.flip()
 
-    return [startButton, loadButton, quitButton]
+    ev.__dict__["listButtons"] = [startButton, loadButton, quitButton]
+    ev.__dict__["status"] = Trigger.InMainMenu
