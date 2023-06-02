@@ -11,6 +11,7 @@ from .elem import Element
 from .equipment import StackOfItems
 
 
+
 #********************************** Classes : **********************************
 
 #-------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ class Stairs (FixedElement) :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
         G.__floor_level__ += 1
         G.buildFloor()
-        G.addMessage(f"The {G._hero._name} goes down")
+        G.addMessage(f"The {G.__hero__._name} goes down")
 
 
 class Chest (FixedElement) :
@@ -49,3 +50,21 @@ class Chest (FixedElement) :
         G = Gme.theGame()
         for _ in range(3) :
             G.__hero__.take(G.randElement(G.chestContent))
+
+
+class Shop(FixedElement):
+    def __init__(self, name="Shop", abbrv="$"):
+        FixedElement.__init__(self, name, abbrv)
+        self.items={}
+
+    def stock(self):
+        pass
+
+    def action(self):
+        G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
+        G.addMessage(f"The {G.__hero__._name} opens the shop")
+        self.purchase()
+
+    def purchase(self):
+        pass
+        

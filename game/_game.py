@@ -21,7 +21,7 @@ from utils import getch
 
 
 class _Game() :
-    equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Equipment("gold","o") ],
+    equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
                   1: [ Elmt.Equipment("sword"), Elmt.Equipment("bow"), Elmt.Equipment("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)) ],
                   2: [ Elmt.Equipment("chainmail") ],
                   3: [ Elmt.Equipment("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)) ]
@@ -79,7 +79,7 @@ class _Game() :
 
     def buildFloor (self) :
         m = self._floor = Flr.Map(hero = self._hero)
-        m.put_Elmt_At_Coord(Elmt.Stairs(), m._rooms[-1].center())
+        m.put_Elmt_At_Coord(Elmt.Stairs(), m._rooms[-2].center())
 
     def addMessage(self , msg:str) :
         self._message.append(msg)
@@ -121,6 +121,18 @@ class _Game() :
             return self._floor.nuageVisibilite()
         print(self._floor)
         return repr(self._floor)
+    
+    def update_effects(self):
+        Hstatut = self._hero._statut
+        eff=0
+        while eff<len(Hstatut):
+            apply=Flr.room.TrapRoom.trapTypes[Hstatut[eff][0]][0]
+            apply(self._hero,Hstatut[eff][1])
+            Hstatut[eff][2]-=1
+            if not Hstatut[eff][2]:
+                Hstatut.pop(eff)
+            else:
+                eff+=1
 
     def play(self):
         """Main game loop"""
@@ -135,6 +147,8 @@ class _Game() :
             print(self.readMessages())
 
             c = getch()
+            if c!="i":
+                self.update_effects() 
             if c in _Game.actions:
                 _Game.actions[c](self._hero)
             self._floor.moveAllMonsters()
