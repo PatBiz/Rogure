@@ -21,58 +21,46 @@ import env_var as ev
 
 
 def gameInit (screen) :
-
-    emptyCell = "gui/assets/Decors/empty.png"
-
     """ Initialise la fenêtre de jeu ET renvoie la liste des boutons. """ 
-
-    # Chargement du jeu :
-
+    
+    # Récupération des variables d'environnements :
     g = ev.game
-    g.buildFloor() #¤#
+    g.buildFloor() #¤DEBUG¤#
     m = g.__floor__
 
-    # Création des cases de la map :
-
-    printer = ev.printer
+    #Définition des cellules de la map :
     l = []
     lCell = []
     for coord in m.getIterator_coord() :
         char = m.get_Elmt_At_Coord(coord)
         match char :
             case ' ' :
-                print(f"{char} ==> Empty case")
-                l.append( MapCell(printer.get_image(emptyCell), coord) )
+                cell = MapCell(pygame.image.load(ev.emptyCell).convert_alpha() , coord)
             case '#' :
-                print(f"{char} ==> Wall case")
-                l.append( MapCell(printer.get_image(getWallSprite_Path(m, coord)), coord) )
+                cell = MapCell(pygame.image.load(getWallSprite_Path(m, coord)).convert_alpha() , coord)
             case _ :
-                print(f"{char} ==> Floor case")
-                l.append( MapCell(printer.get_image(getFloorSprite_Path()), coord) )
+                cell = MapCell(pygame.image.load(getFloorSprite_Path()).convert_alpha() , coord)
+        l.append(cell)
         if coord.x == m.size-1 :
-            printer.breakLine()
             lCell.append( l )
             l = []
-        else :
-            printer.move_right()
-    printer.reset()
-    pygame.display.flip()
 
-    # Création des composants secondaires de la fenêtre en jeu :
-
+    #Création des autres composants :
     BgGameImage = pygame.image.load("gui/assets/background/inGame_Background.jpg").convert()
 
-    InfoHero = pygame.image.load("gui/assets/background/hero_info.png").convert_alpha()
+    InfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
 
-    backPackButton = Button(path="gui/assets/Buttons/in_game/inventory_btn.png",
-                        pos=(495,250),
-                        action=partial(ba.open_inventory, screen))
+    backPackButton = Button(path="gui/assets/Buttons/in_game/inventory_btn.jpg",
+                        pos=(155,102),
+                        action=partial(ba.open_inventory, screen),
+                        alpha=False)
 
     screen.blit(BgGameImage, (-200,-50))
     screen.blit(InfoHero, (0,0))
     screen.blit(backPackButton.img, backPackButton.rect)
     pygame.display.flip()
 
+    # Mises à jour des variables d'environnements
     ev.__dict__["status"] = Trigger.InGame
     ev.__dict__["listMapCell"] = lCell
 

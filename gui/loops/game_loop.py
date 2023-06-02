@@ -22,48 +22,49 @@ import env_var as ev
 
 def gameLoop (screen) :
 
-    unknownItem = "gui/assets/Items/none_item.png"
-    emptyCell = "gui/assets/Decors/empty.png"
-
+    # Récupération des variables d'environnements :
     g = ev.game
     m = g.__floor__
 
-    " Affichages des cases visibles & des éléments dessus : "
-
-    rVisible = m.get_VisibleZone()
-    rCellInRange = getCell_In_Room(room=rVisible, lCell=ev.listMapCell)
-
-
+    #Affichage des cellules visible et des éléments à l'intérieur :
+    visibleZone = m.get_VisibleZone()
+    cellInVisibleZone = getCell_In_Room(room=visibleZone, lCell=ev.listMapCell)
 
     printer = ev.printer
-    print(printer.pos)
-    for coord, cell in zip(rVisible, rCellInRange) :
-        if m.isVisible(coord) :
-            screen.blit((img := cell.img), printer.pos)
-            elem = m.get_Elmt_At_Coord(coord)
-            if not isinstance(elem , str) :
+    for lc in cellInVisibleZone :
+        for cell in lc :
+            printer.print_image(screen, cell.img)
+            elem = m.get_Elmt_At_Coord(cell.coord_in_map)
+            if not isinstance(elem, str) : #Si il y a un élément dans cette cellule
                 try : eSprite = getElementSprite_Path[elem._abbrv]
-                except KeyError : eSprite = pygame.image.load(unknownItem).convert_alpha()
+                except KeyError : eSprite = pygame.image.load(ev.unknownItem).convert_alpha()
                 screen.blit(eSprite, printer.pos)
-        else :
-            screen.blit((img := pygame.image.load(emptyCell).convert_alpha()), printer.pos)
-        pygame.display.update(img.get_rect())
-        if coord.x == m.size-1 :
-            printer.breakLine()
-        else :
             printer.move_right()
+        printer.breakLine()
     printer.reset()
-    
+    pygame.display.flip()
 
+    #Actualisation des informations sur le héro :
+    InfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
+    pygame.display.update(InfoHero.get_rect())
+
+    #Reset des boutons :
     for button in ev.listButtons :
         screen.blit(button.img, button.rect)
         pygame.display.update(button.rect)
 
+    mouse_pos = pygame.mouse.get_pos()
+    for button in ev.listButtons :
+        if button.rect.collidepoint(mouse_pos) :
+            screen.blit(button.active_img, button.rect)
+            pygame.display.update(button.rect)
+
+    #Gestion des events :
     for event in pygame.event.get() :
 
         if event.type == pygame.QUIT : #On ferme la fenêtre + stoppe le jeu
             quit_rogure()
-        
+
         elif event.type == pygame.MOUSEBUTTONDOWN :
             button = find_button_pressed(ev.listButtons, event.pos)
             if button :

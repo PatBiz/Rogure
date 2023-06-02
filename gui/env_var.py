@@ -5,7 +5,11 @@ from game import theGame
 " Constantes d'environnement : "
 
 game    = theGame()
-printer = Printer(pos=(0,-80), lmove=80)
+printer = Printer(pos=(246,-80), lmove=80)
+
+#Sprites courants :
+emptyCell = "gui/assets/Decors/empty.png"
+unknownItem = "gui/assets/Items/none_item.png"
 
 " Variables d'environnement : "
 
