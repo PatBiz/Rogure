@@ -2,18 +2,18 @@ import pygame
 
 
 class Button :
-    def __init__ (self, path, action, pos:tuple[int,int]=(0,0), alpha:bool=True) :
-        if alpha :
+    def __init__(self, path:str, action, pos:tuple[int,int], alpha:bool=True):
+        if alpha:
             self.img = pygame.image.load(path).convert_alpha()
-            try :
+            try:
                 n = len(path.split('.')[-1]) + 1
-                self.active_img = pygame.image.load(path[:-n]+"_active"+path[-n:]).convert_alpha()
+                self.active_img = pygame.image.load(f"{path[:-n]}_active{path[-n:]}").convert_alpha()
             except FileNotFoundError : self.active_img = self.img
-        else :
+        else:
             self.img = pygame.image.load(path).convert()
-            try :
+            try:
                 n = len(path.split('.')[-1]) + 1
-                self.active_img = pygame.image.load(path[:-n]+"_active"+path[-n:]).convert()
+                self.active_img = pygame.image.load(f"{path[:-n]}_active{path[-n:]}").convert()
             except FileNotFoundError : self.active_img = self.img
 
         self.rect = self.img.get_rect(topleft = pos)

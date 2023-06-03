@@ -4,10 +4,10 @@
 import pygame
 
 # Modules persos :
-from button_actions import start_rogure,quit_rogure, open_inventory, close_inventory
-from gui.pygame_utils.button import find_button_pressed
-from gui.pygame_utils import getCell_In_Room
-from gui.sprite_getter import getElementSprite_Path
+from gui.pygame_utils import find_button_pressed, getCell_In_Room
+from gui.pygame_utils import InfoBar
+from gui.sprite_getter import getElementSprite, getCloudSprite
+from gui.button_actions import start_rogure,quit_rogure, open_inventory, close_inventory
 
 # Variables d'environnement :
 import env_var as ev
@@ -19,9 +19,7 @@ import env_var as ev
 #                                 GAME LOOP
 #-------------------------------------------------------------------------------
 
-
-def gameLoop (screen) :
-
+def _update_screen(screen):
     # Récupération des variables d'environnements :
     g = ev.game
     m = g.__floor__
@@ -29,30 +27,46 @@ def gameLoop (screen) :
     #Affichage des cellules visible et des éléments à l'intérieur :
     visibleZone = m.get_VisibleZone()
     cellInVisibleZone = getCell_In_Room(room=visibleZone, lCell=ev.listMapCell)
+    rNuageVisible = getCell_In_Room(room=visibleZone, lCell=m.nuageVisibilite(6).split('\n'))
 
     printer = ev.printer
-    for lc in cellInVisibleZone :
-        for cell in lc :
+    for lc, ln in zip(cellInVisibleZone, rNuageVisible) :
+        for cell, cloudCell in zip(lc, ln) :
             printer.print_image(screen, cell.img)
-            elem = m.get_Elmt_At_Coord(cell.coord_in_map)
-            if not isinstance(elem, str) : #Si il y a un élément dans cette cellule
-                try : eSprite = getElementSprite_Path[elem._abbrv]
-                except KeyError : eSprite = pygame.image.load(ev.unknownItem).convert_alpha()
-                screen.blit(eSprite, printer.pos)
+            if cloudCell == " ":
+                printer.print_image(screen, getCloudSprite(m, cell.coord_in_map))
+            else:
+                elem = m.get_Elmt_At_Coord(cell.coord_in_map)
+                if not isinstance(elem, str) : #Si il y a un élément dans cette cellule
+                    try : eSprite = getElementSprite(elem)
+                    except KeyError : eSprite = ev.unknownItem
+                    screen.blit(eSprite, printer.pos)
             printer.move_right()
         printer.breakLine()
     printer.reset()
     pygame.display.flip()
 
+
+def gameLoop (screen) :
+
+    if ev.updateScreen :
+        _update_screen(screen)
+        ev.__dict__["updateScreen"] = False    
+
     #Actualisation des informations sur le héro :
-    BgInfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
-    #Bar de Pv
+    g = ev.game
+    for infobar in ev.listInfoBar :
+        print(infobar)
+        infobar.update(g.__hero__)
+        pygame.display.update(infobar.rect)
+    #BgInfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
+    #Bar de pv
     #Bar de mana
     #Bar de satiété
     #Porte-monnaie
     #Lvl
     #Effet
-    pygame.display.update(BgInfoHero.get_rect())
+    
 
     """"print (f"--- Etage {self._floor_level} ---")"""
 
@@ -68,6 +82,7 @@ def gameLoop (screen) :
             pygame.display.update(button.rect)
 
     #Gestion des events :
+    g = ev.game
     for event in pygame.event.get() :
 
         if event.type == pygame.QUIT : #On ferme la fenêtre + stoppe le jeu
@@ -79,9 +94,12 @@ def gameLoop (screen) :
                 ev.game_actions[event.key](g.__hero__)
                 print(f"{event.key} has been pressed")
                 print(g.__floor__.pos(g.__hero__))
+                g.__floor__.moveAllMonsters()
+                g.update_effects()
+                ev.__dict__["updateScreen"] = True
             except KeyError :
                 match event.key :
-                    case pygame.K_i : 
+                    case pygame.K_i :
                         ev.__dict__["listButtons"] = open_inventory(screen)
                     case pygame.K_m :
                         ev.__dict__["generateMap"] = True
