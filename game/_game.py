@@ -21,6 +21,13 @@ from utils import getch
 
 
 class _Game() :
+    def __init__(self , hero:Optional[Elmt.Hero]=None , floor_level:int=1 , floor:Optional[Flr.Map]=None) :
+        self._hero = hero or Elmt.Hero()
+        self._floor = floor
+        self._floor_level = floor_level
+        self._message = []
+
+    # ¤¤¤¤¤¤¤¤¤¤ CLASS ATTRIBUTES ¤¤¤¤¤¤¤¤¤¤ #
     equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
                   1: [ Elmt.equipment.Wearable("sword","weapon",("strength",3)), Elmt.Equipment("bow"), Elmt.Equipment("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)), Elmt.Gold("gold","o",3) ],
                   2: [ Elmt.equipment.Wearable("chainmail","armor",("defense",3)), Elmt.Gold("gold","o",5) ],
@@ -45,14 +52,7 @@ class _Game() :
         'k' : lambda hero : hero.__setattr__('_hp' , 0)
     }
 
-    __slot__ = ("buildFloor", "addMessage", "readMessages", "randElement", "randEquipment", "randMonster", "select", "update_floor_affichage", "play")
-
-    def __init__(self , hero:Optional[Elmt.Hero]=None , floor_level:int=1 , floor:Optional[Flr.Map]=None) :
-        self._hero = hero or Elmt.Hero()
-        self._floor = floor
-        self._floor_level = floor_level
-        self._message = []
-
+    # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤ DUNDERS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #
     def __getattr__(self, __name: str) :
         if __name in {"__hero__", "_hero"} :
             return self._hero

@@ -1,15 +1,13 @@
 #******************************* Importations : ********************************
 
 # Built-in modules :
-from typing import Optional
-from copy import copy
-import random as rd
+...
 
 # Modules persos :
 import game._game as Gme
 from .elem import Element
 from .equipment import Equipment
-from .equipment import StackOfItems
+from .item import StackOfItems
 
 
 
@@ -31,8 +29,8 @@ class FixedElement (Element) : #Classe abstraite
 
 
 class Stairs (FixedElement) :
-    def __init__ (self , name: Optional[str] = 'Stairs') :
-        FixedElement.__init__(self, name, 'E')
+    def __init__ (self) :
+        FixedElement.__init__(self, 'Stairs', 'E')
 
     @staticmethod
     def action () :
@@ -43,37 +41,47 @@ class Stairs (FixedElement) :
 
 
 class Chest (FixedElement) :
-    def __init__ (self , name: Optional[str] = 'Chest', key=Equipment('key','*'), opened=False) :
-        FixedElement.__init__(self, name, 'm')
-        self.key = key
-        self.opened = opened
+    def __init__ (self) :
+        FixedElement.__init__(self, 'Chest', 'm')
 
-    #@staticmethod
-    def action (self) :
+    @staticmethod
+    def action () :
         G = Gme.theGame()
-        if self.opened:
-            G.addMessage("This chest is already opened")
-        elif self.key in G._hero._inventory:
-            G._hero._inventory.pop(G._hero._inventory.index(self.key))
-            chestContent = [G.randElement(G.equipments) for _ in range(3)]
-            StackOfItems(content=chestContent).getTaken()
-            self.opened = True
-        else:
-            G.addMessage("A key is necessary")
+        for i,item in enumerate (G.__hero__._inventory) :
+            if isinstance(item, Key) :
+                G.__hero__._inventory.pop(i)
+                StackOfItems(content=[G.randElement(G.equipments) for _ in range(3)]).getTaken()
+                #Je peux le faire car il y a qu'un seul chest sur la map
+                m = G.__floor__
+                for e,coord in m._elem.items() :
+                    if isinstance(e, Chest) :
+                        m.rm(coord)
+                        m.put(OpenedChest())
+            else:
+                G.addMessage("A key is necessary")
 
-class Shop(FixedElement):
-    def __init__(self, name="Shop", abbrv="$"):
-        FixedElement.__init__(self, name, abbrv)
-        self.items={}
 
-    def stock(self):
+class OpenedChest (FixedElement) : #J'en ai besoin sinon ce sera plus dur pour moi de mettre un coffre ouvert sur la map.
+    def __init__(self) :
+        FixedElement.__init__(self, 'OpenedChest', 'n')
+
+    @staticmethod
+    def action () :
+        Gme.theGame().addMessage("This chest has already been opened")
+
+
+class Seller (FixedElement) :
+    def __init__(self):
+        FixedElement.__init__(self, "Shop", "$")
+        self.items = {}
+
+    def stock (self) :
         pass
 
-    def action(self):
+    def action (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
         G.addMessage(f"The {G.__hero__._name} opens the shop")
         self.purchase()
 
     def purchase(self):
         pass
-        

@@ -6,7 +6,8 @@ from typing import Optional
 #Modules persos :
 import game._game as Gme
 from .elem import Element
-from .equipment import Item, StackOfItems, Gold, Wearable
+from .equipment import Equipment, Wearable
+from .item import Item, StackOfItems, Gold
 
 from utils import statically_typed_function
 
@@ -40,9 +41,9 @@ class Creature (Element) : #Classe abstraite
 
 
 class Monster (Creature) :
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1, giveXp=0, loot=None) :
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1, xpAmount=0, loot=None) :
         Creature.__init__(self, name, hp, abbrv, strength, speed)
-        self.giveXp = int(hp*strength/2) if not giveXp else giveXp
+        self.xpAmount = int(hp*strength/2) if not xpAmount else xpAmount
         self.loot = loot
 
     def description(self):
@@ -67,7 +68,7 @@ class Hero (Creature) :
                   seuilXp=10,
                   hpMax = None) :
         Creature.__init__(self, name, hp, abbrv, strength, speed=1)
-        self._hpMax = hp if hpMax==None else hpMax
+        self._hpMax = hpMax or hp
         self._defense = defense
         self._inventory = inventory or []
         self._porte_monnaie = porte_monnaie
@@ -84,14 +85,14 @@ class Hero (Creature) :
     def fullDescription (self) :
         s = ""
         for attr , attrValue in self.__dict__.items() :
-            if not attr in ['_inventory', '_statut'] :
+            if attr not in ['_inventory', '_statut'] :
                 s += f"> {attr[1:] if attr[0]=='_' else attr} : {attrValue}\n"
-        s += "> STATUT : "+str([[eff[0],str(eff[1])+' dmg',str(eff[2])+' rounds'] for eff in self._statut])+"\n" 
+        s += f"> STATUT : {[[eff[0], f'{eff[1]} dmg', f'{eff[2]} rounds'] for eff in self._statut]}\n"
         s += f"> INVENTORY : {[i._name for i in self.__dict__['_inventory']]}\n"
         return s
 
     def inventoryIsFull (self) :
-        return len(self._inventory)>10
+        return len(self._inventory)>1
 
     @statically_typed_function
     def take (self, item:Item) :
@@ -145,7 +146,6 @@ class Hero (Creature) :
         if not self._level%2 and self._level>1:
             self._strength += 1
 
-    
     def wear(self, equipment):
         if equipment.place=="weapon":
             if self.weapon!=None:

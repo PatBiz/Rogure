@@ -49,18 +49,17 @@ class Room :
         return Coord(X , Y)
     
 
-class ShopRoom(Room):
-    def __init__(self,c1,c2):
-        Room.__init__(self,c1,c2)
+class Shop (Room) :
+    def __init__(self, c1, c2):
+        Room.__init__(self, c1, c2)
 
 
-
-class TrapRoom(Room):
+class TrapRoom (Room) :
     trapTypes={"burned": (lambda creature, power : creature.takeDamage(power), 3),
-                "paralized": (lambda a,b : print("Cc"),4), 
+                "paralized": (lambda a,b : print("Cc"), 4), 
                 "poisoned": (lambda creature, power : creature.takeDamage(power), 2)}        #Tours +1
 
-    def __init__(self,c1,c2,nbTraps=2,trapTypesUsed=None):
+    def __init__(self, c1, c2, nbTraps=2, trapTypesUsed=None):
         Room.__init__(self,c1,c2)
         self.nbTraps=nbTraps
         self.trapTypesUsed=trapTypesUsed
