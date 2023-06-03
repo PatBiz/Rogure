@@ -5,7 +5,8 @@ class MapCell :
     
     def __repr__ (self) :
         return f"<{self.coord_in_map.x} ; {self.coord_in_map.y}>"
-    
+
+
 def getCell_In_Room (room, lCell, ignoreBreakline:bool=False) :
     """
     Renvoie la liste des cellule dans la salle 'room'.

@@ -3,6 +3,7 @@ import pygame
 
 from pygame_utils import GameClosureException, Trigger
 import win_init
+import env_var as ev
 
 #-------------------------------------------------------------------------------
 #                                  MAIN MENU
