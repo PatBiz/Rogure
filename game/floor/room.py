@@ -55,10 +55,6 @@ class Shop (Room) :
 
 
 class TrapRoom (Room) :
-    trapTypes={"burned": (lambda creature, power : creature.takeDamage(power), 3),
-                "paralized": (lambda a,b : print("Cc"), 4), 
-                "poisoned": (lambda creature, power : creature.takeDamage(power), 2)}        #Tours +1
-
     def __init__(self, c1, c2, nbTraps=2, trapTypesUsed=None):
         Room.__init__(self,c1,c2)
         self.nbTraps=nbTraps

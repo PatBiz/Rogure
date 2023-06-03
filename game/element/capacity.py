@@ -21,3 +21,8 @@ def teleport(creature:Creature, unique:bool) :
     r = rd.choice(m._rooms)
     m[creature] = m.randEmptyCoordInRoom(r)
     return unique
+
+def becomeVisible(element):
+    if not element.visible:
+        element._abbrv = element._name[0]
+        element.visible = True

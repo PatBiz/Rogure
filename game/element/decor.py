@@ -7,7 +7,7 @@
 import game._game as Gme
 from .elem import Element
 from .equipment import Equipment
-from .item import StackOfItems
+from .item import StackOfItems, Key
 
 
 
@@ -56,9 +56,9 @@ class Chest (FixedElement) :
                 for e,coord in m._elem.items() :
                     if isinstance(e, Chest) :
                         m.rm(coord)
-                        m.put(OpenedChest())
-            else:
-                G.addMessage("A key is necessary")
+                        m.put(coord, OpenedChest())
+                        return True
+        G.addMessage("A key is necessary")
 
 
 class OpenedChest (FixedElement) : #J'en ai besoin sinon ce sera plus dur pour moi de mettre un coffre ouvert sur la map.

@@ -33,8 +33,13 @@ class _Game() :
                   2: [ Elmt.equipment.Wearable("chainmail","armor",("defense",3)), Elmt.Gold("gold","o",5) ],
                   3: [ Elmt.Equipment("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)), Elmt.Gold("gold","o",7) ]
     }
+    effects = {"burned": (lambda creature, power : creature.takeDamage(power), 3),
+                "paralized": (lambda a,b : print("Cc"), 4), 
+                "poisoned": (lambda creature, power : creature.takeDamage(power), 2)
+    } #Prendre tours + 1
     monsters = {0: [ Elmt.Monster("Goblin",4), Elmt.Monster("Bat",2,"W") ],
-                1: [ Elmt.Monster("Ork",6,strength=2), Elmt.Monster("Blob",10) ],
+                1: [ Elmt.Monster("Spider",3,capacity = lambda hero : Elmt.item.Effect("poisoned",1,_Game.effects["poisoned"][1]).applyEffect(hero)), Elmt.Monster("Invisible", 4, visible=False,capacity=lambda self: Elmt.capacity.becomeVisible(self)) ],
+                2: [ Elmt.Monster("Ork",6,strength=2), Elmt.Monster("Blob",10) ],
                 5: [ Elmt.Monster("Dragon",20,strength=3) ]
     }
     actions = {
@@ -126,10 +131,10 @@ class _Game() :
         Hstatut = self._hero._statut
         eff=0
         while eff<len(Hstatut):
-            apply=Flr.room.TrapRoom.trapTypes[Hstatut[eff][0]][0]
-            apply(self._hero,Hstatut[eff][1])
-            Hstatut[eff][2]-=1
-            if not Hstatut[eff][2]:
+            apply=_Game.effects[Hstatut[eff].type][0]
+            apply(self._hero,Hstatut[eff].power)
+            Hstatut[eff].rounds-=1
+            if not Hstatut[eff].rounds:
                 Hstatut.pop(eff)
             else:
                 eff+=1
@@ -147,11 +152,11 @@ class _Game() :
             print(self.readMessages())
 
             c = getch()
-            if c!="i":
-                self.update_effects() 
             if c in _Game.actions:
                 _Game.actions[c](self._hero)
-            self._floor.moveAllMonsters()
+                if c!="i":
+                    self.update_effects() 
+                    self._floor.moveAllMonsters()
         
         print("--- Game Over ---")
 
