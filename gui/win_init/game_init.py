@@ -53,7 +53,6 @@ def gameInit(screen):
     if ev.generateMap:
         _generate_newFloor()
 
-    g = ev.game
 
     #Création des autres composants :
     BgGameImage = pygame.image.load("gui/assets/background/inGame_Background.jpg").convert()
@@ -61,25 +60,43 @@ def gameInit(screen):
     InfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
         
     PvInfoBar = InfoBar("gui/assets/background/health_bar",
-                    pos = (200,20),
-                    currentAmount=5,
-                    fullAmount=g.__hero__._hpMax)
+                    pos=(78,78),
+                    look="_hp",
+                    currentAmount=10,
+                    fullAmount=10)
+    
+    ManaInfoBar = InfoBar("gui/assets/background/mana_bar",
+                    pos=(78,105),
+                    look="_hp", #"_mana",
+                    currentAmount=10,
+                    fullAmount=10)
+    
+    SatietyInfoBar = InfoBar("gui/assets/background/satiety_bar",
+                    pos=(78,132),
+                    look="_hp", #"_satiety",
+                    currentAmount=10,
+                    fullAmount=10)
 
     backPackButton = Button(path="gui/assets/Buttons/in_game/inventory_btn.jpg",
-                        pos=(151,155),
-                        action=partial(ba.open_inventory, screen),
-                        alpha=False)
+                    pos=(151,155),
+                    action=partial(ba.open_inventory, screen),
+                    alpha=False)
 
     screen.blit(BgGameImage, (-200,-50))
     screen.blit(InfoHero, (0,0))
     screen.blit(PvInfoBar.img, PvInfoBar.rect)
+    screen.blit(ManaInfoBar.img, ManaInfoBar.rect)
+    screen.blit(SatietyInfoBar.img, SatietyInfoBar.rect)
     screen.blit(backPackButton.img, backPackButton.rect)
     pygame.display.flip()
+
+    pygame.event.pump()
 
     # Mises à jour des variables d'environnements
     ev.__dict__["status"] = Trigger.InGame
     ev.__dict__["updateScreen"] = True
-    ev.__dict__["listInfoBar"] = [PvInfoBar,]
+    ev.__dict__["updateInfo"] = False
+    ev.__dict__["listInfoBar"] = [PvInfoBar, ManaInfoBar, SatietyInfoBar]
 
     return [backPackButton]
 

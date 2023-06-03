@@ -33,6 +33,8 @@ printer = Printer(pos=(246,-80), lmove=80)
 emptyCell   : pygame.Surface
 unknownItem : pygame.Surface
 
+mapRect = pygame.Rect((246,-80), (960,960))
+
 
 "-----------------------------"
 " Variables d'environnement : "
@@ -49,3 +51,6 @@ updateScreen : bool
 
 #Permet de gérer l'affichage des infos du héro :
 listInfoBar : list[InfoBar]
+updateInfo  : bool
+
+def f() : print(globals())
