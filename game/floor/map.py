@@ -6,15 +6,14 @@ import random as rd
 
 # Modules persos :
 import game._game as Gme
-import game.element as Elmt  
 from .coord import Coord
 from .room import Room
 from .room import TrapRoom
-from .room import ShopRoom
+from .room import Shop
 import element as Elmt #Obligé de l'importer ainsi car 'element' a besoin de 'game' qui lui même a besoin de 'map' => "circular import"
 from element.decor import Chest
-from element.decor import Shop
-from element.equipment import Trap
+from element.decor import Seller
+from element.item import Trap, Key
 
 from utils import statically_typed_function, apply_decorators
 
@@ -28,44 +27,47 @@ from utils import statically_typed_function, apply_decorators
 
 class Map :
     @statically_typed_function
-    def __init__ (self, size: Optional[int] =25, pos: Optional[Coord] =Coord(1,1), nbRooms: Optional[int] =7, hero: Optional[Elmt.Hero] =None) :  #########
+    def __init__(self, size: Optional[int] =25, pos: Optional[Coord] =Coord(1,1), nbRooms: Optional[int] =7, hero: Optional[Elmt.Hero] =None):  #########
 
         self.size = size
         self._mat = [[Map.empty]*size for _ in range (size)]
         self._elem = {}
         self._cache = {} #Cache d'objet qui va se faire 'piétiner'
         #self._mat[posHeroDepart.y][posHeroDepart.x] = self._hero
-
+        #''''''''''''''''''''''''''
         self._rooms = []
         self._roomsToReach = []
-        #''''''''''''''''''''''''''
+        #..........................
         self.generateRooms(nbRooms)
         self.reachAllRooms()
-        self.walls=[]
+        self.walls = []
         self.putWall()
-        lvlFloor=Gme.theGame().__floor_level__
-        if lvlFloor>=5 and not (lvlFloor-5)%3:
-            self.put_Elmt_At_Coord(Shop(),self._rooms[-1].center())
+        lvlFloor = Gme.theGame().__floor_level__
+    
+        if lvlFloor >= 5 and not (lvlFloor-5)%3 :
+            self.put_Elmt_At_Coord(Seller(),self._rooms[-1].center())
+    
         for r in self._rooms :
             self.decorateRoom(r)
+    
         if lvlFloor>=3 and not lvlFloor%3:
             r = rd.choice(self._rooms[1:-2])
-            chest = Chest()
+
             if self.get_Elmt_At_Coord(r.center())!=self.ground:
                 self.remove_Elmt_At_Coord(r.center())
-            self.put_Elmt_At_Coord(chest,r.center())
-            guardKey = rd.choice([e for e in self._elem])
-            while not isinstance(guardKey,Elmt.Monster):
-                guardKey = rd.choice([e for e in self._elem])
-            guardKey.loot = chest.key
-        #..........................
+            self.put_Elmt_At_Coord(Chest(), r.center())
 
+            guardKey = rd.choice(list(self._elem))
+            while not isinstance(guardKey,Elmt.Monster):
+                guardKey = rd.choice(list(self._elem))
+            guardKey.loot = Key()
+        
         self.posHeroDepart = self._rooms[0].center() #Spawn pour peut-être mettre une fonctionnalité de respawn
         self._hero = hero or Elmt.Hero()
         #''''''''''''''''''''''''''
         self.put_Elmt_At_Coord(self._hero , self.posHeroDepart)
-        
         #..........................
+
 
     # ¤¤¤¤¤¤¤¤¤¤ CLASS ATTRIBUTES ¤¤¤¤¤¤¤¤¤¤ #
     empty = ' '
@@ -260,7 +262,7 @@ class Map :
 
         c1 = Coord(              x1              ,                y1              )
         c2 = Coord( min( x1+rd.randint(3,8) , len(self)-2 ) , min( y1+rd.randint(3,8) , len(self)-2 ) )
-        return ShopRoom(c1,c2)
+        return Shop(c1,c2)
     
     @statically_typed_function
     def generateRooms(self, n:int) :
@@ -354,9 +356,9 @@ class Map :
         return c
     
     def roomToTrap(self,r):
-        for n in range(r.nbTraps):
-            eff=rd.choice([t for t in TrapRoom.trapTypes.keys()]) if r.trapTypesUsed==None else rd.choice(r.trapTypesUsed)
-            pow=rd.randint(1,2) if eff!="paralized" else 0
+        for _ in range(r.nbTraps):
+            eff = rd.choice(list(TrapRoom.trapTypes)) if r.trapTypesUsed is None else rd.choice(r.trapTypesUsed)
+            pow = rd.randint(1,2) if eff!="paralized" else 0
             self.put(self.randEmptyCoordInRoom(r), Trap(effect=eff,power=pow))
 
 
@@ -366,7 +368,7 @@ class Map :
         Ancien emplacement : classe 'Room'
         """
         G = Gme.theGame()
-        if not isinstance(r,ShopRoom):
+        if not isinstance(r,Shop):
             self.put(self.randEmptyCoordInRoom(r) , G.randEquipment())
             self.put(self.randEmptyCoordInRoom(r) , G.randMonster())
             if isinstance(r,TrapRoom):
@@ -416,15 +418,14 @@ class Map :
 
     # ¤¤¤¤¤¤¤ METHODES DE DEPLACEMENT ¤¤¤¤¤¤ #
     def findPath(self,monster,dest):
-        orig = self[monster]
         if (dest in self)  and  (((objMet := self[dest]) == Map.ground)  or  (isinstance(objMet,Elmt.Element))) and not isinstance(objMet,Elmt.FixedElement) :
-                    print(f"{monster}-->{objMet}") #:Debug:#
-                    if objMet == Map.ground:
-                        orig = self[monster] = dest
-                    elif Elmt.meet(monster, objMet) :
-                        self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
-                        orig = self[monster] = dest
-                    return True
+            print(f"{monster}-->{objMet}") #¤Debug¤#
+            if objMet == Map.ground:
+                self[monster] = dest
+            elif Elmt.meet(monster, objMet) :
+                self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
+                self[monster] = dest
+            return True
         return False
 
 
@@ -457,7 +458,7 @@ class Map :
         orig = self[hero]
         dest = orig + direc       
         if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
-            print(f"{hero}-->{objMet}") #:Debug:#
+            print(f"{hero}-->{objMet}") #¤Debug¤#
             if objMet == Map.ground :
                 self.remove_Elmt_At_Coord(orig)       #On vide l'ancien emplacement
                 self.put_Elmt_At_Coord(hero , dest)   #On déplace 'hero' dans 'dest'
