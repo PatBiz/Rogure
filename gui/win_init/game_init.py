@@ -25,7 +25,9 @@ def gameInit (screen) :
     
     # Récupération des variables d'environnements :
     g = ev.game
-    g.buildFloor() #¤DEBUG¤#
+    if ev.generateMap :
+        g.buildFloor() #¤DEBUG¤#
+        ev.__dict__["generateMap"] = False
     m = g.__floor__
 
     #Définition des cellules de la map :
@@ -51,7 +53,7 @@ def gameInit (screen) :
     InfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
 
     backPackButton = Button(path="gui/assets/Buttons/in_game/inventory_btn.jpg",
-                        pos=(155,102),
+                        pos=(153,156),
                         action=partial(ba.open_inventory, screen),
                         alpha=False)
 
