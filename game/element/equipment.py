@@ -19,8 +19,8 @@ from .item import Item
 #-------------------------------------------------------------------------------
 
 class Equipment (Item) :
-    def __init__ (self , name:str , abbrv:Optional[str]=None , usage=None) :
-        Item.__init__(self, name, abbrv)
+    def __init__ (self , name:str , abbrv:Optional[str]=None , visible=True, usage=None) :
+        Item.__init__(self, name, abbrv, visible)
         self.usage = usage
 
     def getUse (self , creature) :
@@ -48,8 +48,8 @@ Avis pour Mathieu :
 
 class Wearable(Equipment):
     """A wearable equipment."""
-    def __init__(self, name, place, effect, abbrv="", usage=None):
-        Equipment.__init__(self, name, abbrv, usage)
+    def __init__(self, name, place, effect, abbrv="", visible=True, usage=None):
+        Equipment.__init__(self, name, abbrv, visible, usage)
         self.place = place
         self.effect = effect
 

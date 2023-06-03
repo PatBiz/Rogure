@@ -13,7 +13,7 @@ from .room import Shop
 import element as Elmt #Obligé de l'importer ainsi car 'element' a besoin de 'game' qui lui même a besoin de 'map' => "circular import"
 from element.decor import Chest
 from element.decor import Seller
-from element.item import Trap, Key
+from element.item import Trap, Key, Effect
 
 from utils import statically_typed_function, apply_decorators
 
@@ -165,6 +165,8 @@ class Map :
                 raise ValueError(f"Incorrect cell. Cell was occupied by '{self.get_Elmt_At_Coord(coord)}'")
             if elem in self :
                 raise KeyError('Already placed')
+            if not elem.visible:
+                elem._abbrv = Map.ground
             self._mat[coord.y][coord.x] = elem
             self._elem[elem] = coord
         put = lambda self,coord,elem : self.put_Elmt_At_Coord (elem , coord)
@@ -357,9 +359,9 @@ class Map :
     
     def roomToTrap(self,r):
         for _ in range(r.nbTraps):
-            eff = rd.choice(list(TrapRoom.trapTypes)) if r.trapTypesUsed is None else rd.choice(r.trapTypesUsed)
-            pow = rd.randint(1,2) if eff!="paralized" else 0
-            self.put(self.randEmptyCoordInRoom(r), Trap(effect=eff,power=pow))
+            typ = rd.choice(list(Gme.theGame().effects)) if r.trapTypesUsed is None else rd.choice(r.trapTypesUsed)
+            pow = rd.randint(1,2) if typ!="paralized" else 0
+            self.put(self.randEmptyCoordInRoom(r), Trap(abbrv='_',effect=Effect(typ,pow,rounds=Gme.theGame().effects[typ][1])))
 
 
     def decorateRoom(self, r) :
@@ -453,7 +455,7 @@ class Map :
 
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):
-        if "paralized" in [eff[0] for eff in self._hero._statut]:
+        if "paralized" in [eff.type for eff in self._hero._statut]:
             return False
         orig = self[hero]
         dest = orig + direc       

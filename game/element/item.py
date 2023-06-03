@@ -20,8 +20,8 @@ from utils import statically_typed_function
 
 
 class Item (Element) : #Classe abstraite
-    def __init__ (self, name, abbrv) :
-        Element.__init__(self, name, abbrv)
+    def __init__ (self, name, abbrv, visible=True) :
+        Element.__init__(self, name, abbrv, visible)
 
     def description(self) :
         return f"<{self._name}>"
@@ -33,8 +33,8 @@ class Item (Element) : #Classe abstraite
 
 
 class StackOfItems (Item) :
-    def __init__ (self, name="Stack", content=Optional[list[Item]]) :
-        Item.__init__(self, name, abbrv="¤")
+    def __init__ (self, name="Stack", visible=True, content=Optional[list[Item]]) :
+        Item.__init__(self, name, visible, abbrv="¤")
         self._content = content or []
 
     def extend (self, other) :
@@ -59,8 +59,8 @@ class StackOfItems (Item) :
 
 
 class Gold (Item) :
-    def __init__ (self , name:str , abbrv:Optional[str]=None , amount=1) :
-        Item.__init__(self, name, abbrv)
+    def __init__ (self , name:str , abbrv:Optional[str]=None, visible=True, amount=1) :
+        Item.__init__(self, name, abbrv, visible)
         self._amount = amount
 
     def getTaken (self) :
@@ -69,20 +69,40 @@ class Gold (Item) :
         G.__hero__.take(self)
 
 
+class Effect:
+    def __init__(self, type, power, rounds):
+        self.type = type
+        self.power = power
+        self.rounds = rounds
+
+    def __eq__(self, other):
+        return self.type==other.type
+
+    def __repr__(self) :
+        return f'[{self.type}, {self.power} dmg, {self.rounds} rounds]'
+
+    def applyEffect(self, creature):
+        G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
+        for eff in range(len(creature._statut)):
+            if creature._statut[eff]==self:
+                creature._statut[eff].rounds = self.rounds
+                G.addMessage(f"The {creature._name} is {self.type}")
+                return True
+        creature._statut.append(self)
+        G.addMessage(f"The {creature._name} is {self.type}")
+        return True
+
 class Trap(Item) :
-    def __init__(self, name="Trap", abbrv="_", effect=None, power=0):
-        Item.__init__(self,name, Flr.Map.ground if abbrv=="_" else abbrv)
-        self.effect=effect
-        self.power=power
-        self.actived=True
+    def __init__(self, name="Trap", abbrv=None, visible=False, effect=None):
+        Item.__init__(self,name, abbrv, visible)
+        self.effect = effect
+        self.actived = True
 
     def getTaken(self):
         if self.actived :
-            G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
-            G._hero._statut.append([self.effect,self.power,TrapRoom.trapTypes[self.effect][1]])      #Effet, puissance, temps(en tours)
-            G.addMessage(f"The {G._hero._name} is {self.effect}")
-            self.actived=False
-            return True
+            if self.effect:
+                self.effect.applyEffect(Gme.theGame()._hero)
+                self.actived=False
 
 
 class Key (Item) :

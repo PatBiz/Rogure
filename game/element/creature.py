@@ -20,8 +20,8 @@ from utils import statically_typed_function
 
 
 class Creature (Element) : #Classe abstraite
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1) :
-        Element.__init__(self, name, abbrv)
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, visible=True, strength:Optional[int]=1, speed:Optional[int]=1) :
+        Element.__init__(self, name, abbrv, visible)
         self._hp = hp
         self._strength = strength
         self._speed = speed
@@ -35,16 +35,19 @@ class Creature (Element) : #Classe abstraite
     def hit (self, other):
         other.takeDamage(self._strength)
         Gme.theGame().addMessage(msg = f"The {self._name} hits the {other.description()}")
+        if isinstance(self,Monster) and self.capacity:
+            self.useCapacity(other)
 
     def isDead (self) :
         return self._hp <= 0
 
 
 class Monster (Creature) :
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, strength:Optional[int]=1, speed:Optional[int]=1, xpAmount=0, loot=None) :
-        Creature.__init__(self, name, hp, abbrv, strength, speed)
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, visible=True, strength:Optional[int]=1, speed:Optional[int]=1, xpAmount=0, loot=None, capacity=None) :
+        Creature.__init__(self, name, hp, abbrv, visible, strength, speed)
         self.xpAmount = int(hp*strength/2) if not xpAmount else xpAmount
         self.loot = loot
+        self.capacity = capacity
 
     def description(self):
         return f'<{self._name}>({self._hp})'
@@ -53,13 +56,20 @@ class Monster (Creature) :
         if self.loot!=None:
             Gme.theGame()._hero.take(self.loot)
 
+    def useCapacity(self, creature):
+        if self.capacity:
+            if self._name == "Invisible":
+                return self.capacity(self)
+            return self.capacity(creature)
+
 
 class Hero (Creature) :
     def __init__ (self,
                   name: Optional[str] = 'Hero',
                   hp: Optional[int] = 10,
                   abbrv: Optional[str] = '@',
-                  strength: Optional[int] = 40,
+                  visible=True,
+                  strength: Optional[int] = 2,
                   defense = 3,
                   inventory: Optional[list] = None,
                   porte_monnaie: Optional[int]=0,
@@ -67,7 +77,7 @@ class Hero (Creature) :
                   xp = 0,
                   seuilXp=10,
                   hpMax = None) :
-        Creature.__init__(self, name, hp, abbrv, strength, speed=1)
+        Creature.__init__(self, name, hp, abbrv, visible, strength, speed=1)
         self._hpMax = hpMax or hp
         self._defense = defense
         self._inventory = inventory or []
@@ -87,12 +97,12 @@ class Hero (Creature) :
         for attr , attrValue in self.__dict__.items() :
             if attr not in ['_inventory', '_statut'] :
                 s += f"> {attr[1:] if attr[0]=='_' else attr} : {attrValue}\n"
-        s += f"> STATUT : {[[eff[0], f'{eff[1]} dmg', f'{eff[2]} rounds'] for eff in self._statut]}\n"
+        s += f"> STATUT : {[eff for eff in self._statut]}\n"
         s += f"> INVENTORY : {[i._name for i in self.__dict__['_inventory']]}\n"
         return s
 
     def inventoryIsFull (self) :
-        return len(self._inventory)>1
+        return len(self._inventory)>12
 
     @statically_typed_function
     def take (self, item:Item) :
