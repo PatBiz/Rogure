@@ -450,13 +450,12 @@ class Map :
                         if posHero.distance(orig+path)<posHero.distance(orig):
                             self.findPath(monster,orig+path)
 
-
     @statically_typed_function
     def moveHero(self, hero:Elmt.Hero, direc:Coord):
         if "paralized" in [eff[0] for eff in self._hero._statut]:
             return False
         orig = self[hero]
-        dest = orig + direc       
+        dest = orig + direc
         if (dest in self)  and  ((objMet := self[dest]) != Map.wall)  and  (objMet != Map.empty) :
             print(f"{hero}-->{objMet}") #¤Debug¤#
             if objMet == Map.ground :
