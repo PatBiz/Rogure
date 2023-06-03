@@ -53,4 +53,5 @@ updateScreen : bool
 listInfoBar : list[InfoBar]
 updateInfo  : bool
 
+#¤DEBUG¤#
 def f() : print(globals())

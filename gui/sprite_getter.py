@@ -46,15 +46,12 @@ def getFloorSprite () :
 
 # Cloud :
 
-def getCloudSprite (m, cloudCoord) :
-    imgPath = "gui/assets/Decors/clouds/cloud_close.png"
-    
+def getCloudSprite () :
+    imgPath = "gui/assets/Decors/clouds/cloud_3.png"
     return pygame.image.load(imgPath).convert_alpha()
 
 # Element :
 
-ElementSprite_Path = {
-}
-
 def getElementSprite (elem) :
-    raise KeyError("Pour l'instant y a rien")
+    return pygame.image.load(elem.get_sprite()).convert_alpha()
+    #raise KeyError("Pour l'instant y a rien")

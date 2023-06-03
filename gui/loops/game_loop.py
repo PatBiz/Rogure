@@ -34,12 +34,13 @@ def _update_screen(screen):
         for cell, cloudCell in zip(lc, ln) :
             printer.print_image(screen, cell.img)
             if cloudCell == " ":
-                printer.print_image(screen, getCloudSprite(m, cell.coord_in_map))
+                printer.print_image(screen, getCloudSprite())
             else:
                 elem = m.get_Elmt_At_Coord(cell.coord_in_map)
                 if not isinstance(elem, str) : #Si il y a un élément dans cette cellule
                     try : eSprite = getElementSprite(elem)
-                    except KeyError : eSprite = ev.unknownItem
+                    except FileNotFoundError : eSprite = ev.unknownItem
+                    print(elem._name)
                     screen.blit(eSprite, printer.pos)
             #pygame.display.update(cell.img.get_rect(topleft=printer.pos))
             printer.move_right()
@@ -75,10 +76,12 @@ def gameLoop (screen) :
 
     if ev.updateScreen :
         _update_screen(screen)
-        """        while screen.get_at((768, 433)) == (16, 22, 22, 255) :
+        """
+        while screen.get_at((768, 433)) == (16, 22, 22, 255) :
             #ev.f()
             start_rogure(screen)
-            time.sleep(0.03) """
+            time.sleep(0.03)
+        """
         ev.__dict__["updateScreen"] = False
     
     if ev.updateInfo :
