@@ -4,7 +4,7 @@
 import pygame
 
 # Modules persos :
-from button_actions import quit_rogure, close_inventory
+from button_actions import start_rogure,quit_rogure, open_inventory, close_inventory
 from gui.pygame_utils.button import find_button_pressed
 from gui.pygame_utils import getCell_In_Room
 from gui.sprite_getter import getElementSprite_Path
@@ -45,8 +45,16 @@ def gameLoop (screen) :
     pygame.display.flip()
 
     #Actualisation des informations sur le héro :
-    InfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
-    pygame.display.update(InfoHero.get_rect())
+    BgInfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
+    #Bar de Pv
+    #Bar de mana
+    #Bar de satiété
+    #Porte-monnaie
+    #Lvl
+    #Effet
+    pygame.display.update(BgInfoHero.get_rect())
+
+    """"print (f"--- Etage {self._floor_level} ---")"""
 
     #Reset des boutons :
     for button in ev.listButtons :
@@ -64,6 +72,21 @@ def gameLoop (screen) :
 
         if event.type == pygame.QUIT : #On ferme la fenêtre + stoppe le jeu
             quit_rogure()
+
+        # SIMULATION de Game.play()
+        elif event.type == pygame.KEYDOWN :
+            try : 
+                ev.game_actions[event.key](g.__hero__)
+                print(f"{event.key} has been pressed")
+                print(g.__floor__.pos(g.__hero__))
+            except KeyError :
+                match event.key :
+                    case pygame.K_i : 
+                        ev.__dict__["listButtons"] = open_inventory(screen)
+                    case pygame.K_m :
+                        ev.__dict__["generateMap"] = True
+                        ev.__dict__["listButtons"] = start_rogure(screen)
+                    case _ : pass
 
         elif event.type == pygame.MOUSEBUTTONDOWN :
             button = find_button_pressed(ev.listButtons, event.pos)

@@ -9,10 +9,22 @@ def getWallSprite_Path(m, cwall):
             bcase = '.'
     except IndexError : bcase = ' '
 
-    if bcase in {'.', ' '}:
+    if bcase == '.' :
         return rd.choice(["gui/assets/Decors/walls/horizontal/horizontal_wall_1.png",
                           "gui/assets/Decors/walls/horizontal/horizontal_wall_2.png",
                           "gui/assets/Decors/walls/horizontal/horizontal_wall_3.png"])
+
+    if bcase == ' ' :
+        try :
+            b2case = m.get_Elmt_At_Coord(cwall+Coord(0,2))
+            if not isinstance(b2case, str) :
+                b2case = '.'
+        except IndexError : b2case = ' '
+        if b2case != '#' :
+            return rd.choice(["gui/assets/Decors/walls/horizontal/horizontal_wall_1.png",
+                          "gui/assets/Decors/walls/horizontal/horizontal_wall_2.png",
+                          "gui/assets/Decors/walls/horizontal/horizontal_wall_3.png"])
+
     return "gui/assets/Decors/walls/vco_wall.png"
     
 

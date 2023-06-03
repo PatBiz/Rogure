@@ -81,17 +81,17 @@ def statically_typed_function(func:callable):    # REMARQUE : les noms ne sont p
             if argKind :
                 if argKind == 'VAR_POSITIONAL' :
                     for av in argValue :
-                        None   if(_check_type(av , argType))else   exec(f"raise TypeError('{av} is not {_get_name_of_type(argType)}')")
+                        None   if(_check_type(av , argType))else   exec(f"raise TypeError('{av} is not {_get_name_of_type(argType)} but is {type(av)}')")
                 else : # argKind == 'VAR_KEYWORD' 
                     for av in argValue.items() :
-                        None   if(_check_type(av , argType))else   exec(f"raise TypeError('{av} is not {_get_name_of_type(argType)}')")
+                        None   if(_check_type(av , argType))else   exec(f"raise TypeError('{av} is not {_get_name_of_type(argType)} but is {type(av)}')")
             else :
-                None   if(_check_type(argValue , argType))else   exec(f"raise TypeError('{argValue} is not {_get_name_of_type(argType)}')")
+                None   if(_check_type(argValue , argType))else   exec(f"raise TypeError('{argValue} is not {_get_name_of_type(argType)} but is {type(argValue)}')")
 
         returnValue = func(*args , **kwargs)
         try :
             returnType = func_annotations["return"]
-            return returnValue   if(_check_type(returnValue , returnType))else  exec(f"raise TypeError('{func.__name__} did not return {_get_name_of_type(returnType)} object')")
+            return returnValue   if(_check_type(returnValue , returnType))else  exec(f"raise TypeError('{func.__name__} did not return {_get_name_of_type(returnType)} object but has returned {type(returnValue)} objetct')")
         except KeyError :
             return returnValue
 

@@ -73,7 +73,7 @@ class Map :
     empty = ' '
     ground = '.'
     wall = '#'
-    dir = {'z': Coord(0,-1) , 's': Coord(0,1) , 'd': Coord(1,0) , 'q': Coord(-1,0)}
+    dir = {'z': Coord(0,-1) , 's': Coord(0,1) , 'd': Coord(1,0) , 'q': Coord(-1,0), ' ': Coord(0,0)}
 
 
     # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤ DUNDERS ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ #

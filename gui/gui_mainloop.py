@@ -24,7 +24,7 @@ Hypothèse d'implémentation dans 'main.py' :
     - mettre dans 'main.py'
     - faire comme 'gui_tester.py'
 """
-
+ev.__dict__["generateMap"] = True
 while True :
     match ev.status :
         case Trigger.InMainMenu :
