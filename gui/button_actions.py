@@ -3,6 +3,7 @@ import pygame
 
 from pygame_utils import GameClosureException, Trigger
 import win_init
+import env_var as ev
 
 #-------------------------------------------------------------------------------
 #                                  MAIN MENU
@@ -39,9 +40,14 @@ def close_inventory (screen):
 
 def equip (screen, item_indice) : #Si clic inventaire
     print(f"Equipping Item{item_indice}")
-    return ...
+    ...
+
+def disequip (screen, item) :
+    print(f"Disequipping {item._name}")
+    ...
 
 # ------- Shop :
 
 def goto_shop () :
-    ...
+    print("Start shopping")
+    return ...

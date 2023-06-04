@@ -1,8 +1,13 @@
+import pygame
 import random as rd
 
 from game.floor import Coord
 
-def getWallSprite_Path(m, cwall):
+pygame.init()
+
+# Wall :
+
+def getWallSprite(m, cwall):
     try :
         bcase = m.get_Elmt_At_Coord(cwall+Coord(0,1))
         if not isinstance(bcase, str) :
@@ -10,30 +15,46 @@ def getWallSprite_Path(m, cwall):
     except IndexError : bcase = ' '
 
     if bcase == '.' :
-        return rd.choice(["gui/assets/Decors/walls/horizontal/horizontal_wall_1.png",
+        imgPath = rd.choice(["gui/assets/Decors/walls/horizontal/horizontal_wall_1.png",
                           "gui/assets/Decors/walls/horizontal/horizontal_wall_2.png",
                           "gui/assets/Decors/walls/horizontal/horizontal_wall_3.png"])
-
-    if bcase == ' ' :
+    elif bcase == ' ' :
         try :
             b2case = m.get_Elmt_At_Coord(cwall+Coord(0,2))
             if not isinstance(b2case, str) :
                 b2case = '.'
         except IndexError : b2case = ' '
         if b2case != '#' :
-            return rd.choice(["gui/assets/Decors/walls/horizontal/horizontal_wall_1.png",
+            imgPath = rd.choice(["gui/assets/Decors/walls/horizontal/horizontal_wall_1.png",
                           "gui/assets/Decors/walls/horizontal/horizontal_wall_2.png",
                           "gui/assets/Decors/walls/horizontal/horizontal_wall_3.png"])
+    try :
+        return pygame.image.load(imgPath).convert()
+    except UnboundLocalError :
+        imgPath = "gui/assets/Decors/walls/vco_wall.png"
+        return pygame.image.load(imgPath).convert()
 
-    return "gui/assets/Decors/walls/vco_wall.png"
-    
+# Floor :
 
-def getFloorSprite_Path () :
-    return rd.choice(["gui/assets/Decors/floors/floor_1.png",
+def getFloorSprite () :
+    imgPath = rd.choice(["gui/assets/Decors/floors/floor_1.png",
                       "gui/assets/Decors/floors/floor_2.png",
                       "gui/assets/Decors/floors/floor_3.png",
                       "gui/assets/Decors/floors/floor_4.png"])
 
-getElementSprite_Path = {
+    return pygame.image.load(imgPath).convert()
 
+# Cloud :
+
+def getCloudSprite (m, cloudCoord) :
+    imgPath = "gui/assets/Decors/clouds/cloud_close.png"
+    
+    return pygame.image.load(imgPath).convert_alpha()
+
+# Element :
+
+ElementSprite_Path = {
 }
+
+def getElementSprite (elem) :
+    raise KeyError("Pour l'instant y a rien")

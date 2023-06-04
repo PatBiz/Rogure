@@ -2,6 +2,8 @@ from .button import Button, find_button_pressed
 from .triggers import GameClosureException, Trigger
 from .printer import Printer
 from .map_cell import MapCell, getCell_In_Room
+from .info_bar import InfoBar
+
 
 __all__ = (
 
@@ -24,4 +26,8 @@ __all__ = (
 
     "MapCell",
     "getCell_In_Room",
+
+    # ---- InfoBar ----
+
+    "InfoBar"
 )

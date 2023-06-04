@@ -15,7 +15,8 @@ icon = pygame.image.load("gui/assets/rogure_icon.png").convert()
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Rogure')
 
-win_init.mainMenuInit(screen)
+ev.__dict__["emptyCell"]   = pygame.image.load("gui/assets/Decors/empty.png").convert_alpha()
+ev.__dict__["unknownItem"] = pygame.image.load("gui/assets/Items/none_item.png").convert_alpha()
 
 # Boucle Principale :
 
@@ -25,6 +26,7 @@ Hypothèse d'implémentation dans 'main.py' :
     - faire comme 'gui_tester.py'
 """
 ev.__dict__["generateMap"] = True
+win_init.mainMenuInit(screen)
 while True :
     match ev.status :
         case Trigger.InMainMenu :

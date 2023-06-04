@@ -9,6 +9,7 @@ from .elem import Element
 from .equipment import Equipment
 from .item import StackOfItems, Key
 
+from utils.keyboard_listener import getch
 
 
 #********************************** Classes : **********************************
@@ -50,7 +51,7 @@ class Chest (FixedElement) :
         for i,item in enumerate (G.__hero__._inventory) :
             if isinstance(item, Key) :
                 G.__hero__._inventory.pop(i)
-                StackOfItems(content=[G.randElement(G.equipments) for _ in range(3)]).getTaken()
+                StackOfItems(content=[G.randElement(G.equipments,2) for _ in range(3)]).getTaken()
                 #Je peux le faire car il y a qu'un seul chest sur la map
                 m = G.__floor__
                 for e,coord in m._elem.items() :
@@ -73,10 +74,13 @@ class OpenedChest (FixedElement) : #J'en ai besoin sinon ce sera plus dur pour m
 class Seller (FixedElement) :
     def __init__(self):
         FixedElement.__init__(self, "Shop", "$")
-        self.items = {}
+        self.items = self.stock()
 
     def stock (self) :
-        pass
+        G = Gme.theGame()
+        objects = [G.equipments[0][0],G.equipments[1][1],G.equipments[1][2]]
+        stock = [[obj,3,3] for obj in objects]
+        return stock
 
     def action (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
@@ -84,4 +88,25 @@ class Seller (FixedElement) :
         self.purchase()
 
     def purchase(self):
-        pass
+        G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
+        purchase = True
+        while purchase:
+            interface = ''
+            for obj in range(len(self.items)):
+                interface += f"\t- ({obj}) <{self.items[obj][0]}>, price: {self.items[obj][1]} golds, stock: {self.items[obj][2]}\n"
+            G.addMessage("Do you want to buy something?>\n"+interface+"Your golds: "+str(G.__floor__._hero._porte_monnaie))
+            print(G.readMessages())
+            choice = getch()
+            if not choice in ['0','1','2']:
+                return False
+            if G.__floor__._hero._porte_monnaie<self.items[int(choice)][1]:
+                G.addMessage("You try to scam me?")
+                return False
+            G.__floor__._hero.take(self.items[int(choice)][0])
+            self.items[int(choice)][2]-=1
+            G.__floor__._hero._porte_monnaie -= self.items[int(choice)][1]
+            G.addMessage("Thanks. Do you want to buy something else? (y/n)\n"+"Your golds: "+str(G.__floor__._hero._porte_monnaie))
+            print(G.readMessages())
+            if getch()!='y':
+                purchase = False
+        G.addMessage("Goodbye")

@@ -28,19 +28,22 @@ class _Game() :
         self._message = []
 
     # ¤¤¤¤¤¤¤¤¤¤ CLASS ATTRIBUTES ¤¤¤¤¤¤¤¤¤¤ #
-    equipments = {0: [ Elmt.Equipment("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
-                  1: [ Elmt.equipment.Wearable("sword","weapon",("strength",3)), Elmt.Equipment("bow"), Elmt.Equipment("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)), Elmt.Gold("gold","o",3) ],
-                  2: [ Elmt.equipment.Wearable("chainmail","armor",("defense",3)), Elmt.Gold("gold","o",5) ],
-                  3: [ Elmt.Equipment("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)), Elmt.Gold("gold","o",7) ]
+    equipments = {0: [ Elmt.equipment.Consumables("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
+                  1: [ Elmt.equipment.Sword("sword","weapon",("strength",1)), Elmt.equipment.Consumables("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)), Elmt.equipment.ProjectileWeapon("dague",usage=lambda hero,dir: Elmt.capacity.throw(hero,hero._strength,True,dir)),Elmt.Gold("gold","o",2) ],
+                  2: [ Elmt.equipment.Shield("shield","weapon",("defense",1),abbrv="♦"), Elmt.Gold("gold","o",3), Elmt.equipment.Bow("bow",usage=lambda hero,dir: Elmt.capacity.throw(hero,3*hero._strength//2,False,dir)) ],
+                  3: [ Elmt.equipment.Armor("helmet","helmet",("defense",1)), Elmt.Gold("gold","o",4) ],
+                  4: [ Elmt.equipment.Armor("chainmail","chestplate",("defense",2)), Elmt.Gold("gold","o",5) ],
+                  5: [ Elmt.equipment.Consumables("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)), Elmt.Gold("gold","o",7) ]
     }
     effects = {"burned": (lambda creature, power : creature.takeDamage(power), 3),
                 "paralized": (lambda a,b : print("Cc"), 4), 
                 "poisoned": (lambda creature, power : creature.takeDamage(power), 2)
     } #Prendre tours + 1
-    monsters = {0: [ Elmt.Monster("Goblin",4), Elmt.Monster("Bat",2,"W") ],
-                1: [ Elmt.Monster("Spider",3,capacity = lambda hero : Elmt.item.Effect("poisoned",1,_Game.effects["poisoned"][1]).applyEffect(hero)), Elmt.Monster("Invisible", 4, visible=False,capacity=lambda self: Elmt.capacity.becomeVisible(self)) ],
-                2: [ Elmt.Monster("Ork",6,strength=2), Elmt.Monster("Blob",10) ],
-                5: [ Elmt.Monster("Dragon",20,strength=3) ]
+    monsters = {0: [ Elmt.Monster("Goblin",6,strength=2), Elmt.Monster("Bat",4,"W") ],
+                1: [ Elmt.Monster("Wolf",6,'L',strength=3,speed=2), Elmt.creature.DistanceMonster("Archers",5,strength=3,xpAmount=8) ],
+                2: [ Elmt.Monster("Spider",6,capacity = lambda hero : Elmt.item.Effect("poisoned",2,_Game.effects["poisoned"][1]).applyEffect(hero)), Elmt.Monster("Invisible", 8, strength=4,visible=False,capacity=lambda self: Elmt.capacity.becomeVisible(self)) ],
+                4: [ Elmt.Monster("Ork",12,strength=6), Elmt.Monster("Blob",15,strength=5) ],
+                8: [ Elmt.Monster("Dragon",30,strength=10) ]
     }
     actions = {
         # Actions de déplacement :
@@ -96,8 +99,8 @@ class _Game() :
             return s
         return ""
 
-    def randElement (self , collection) :
-        X = rd.expovariate(1/self._floor_level)
+    def randElement (self , collection, upgrade=0) :
+        X = rd.expovariate(5/(self._floor_level + upgrade))
         for rarity in collection :
             if rarity > X : break
             rarityMax = rarity

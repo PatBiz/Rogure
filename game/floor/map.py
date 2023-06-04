@@ -435,7 +435,7 @@ class Map :
         posHero = self.get_Pos_Of_Elmt(self._hero)
         for monster in list(self._elem) :
             #Si ce n'est pas une créature
-            if type(monster) != Elmt.Monster : 
+            if not isinstance(monster,Elmt.Monster) : 
                 continue
 
             #Si le héro est trop loin
@@ -443,7 +443,9 @@ class Map :
             if orig.distance(posHero) > 6 : 
                 continue
             for _ in range(monster._speed) :
-                if not self.findPath(monster,orig + orig.direction(posHero)):
+                if isinstance(monster,Elmt.creature.DistanceMonster):
+                    monster.snipe(self._hero)
+                elif not self.findPath(monster,orig + orig.direction(posHero)):
                     if orig.direction(posHero) in [Coord(1,0),Coord(-1,0)]:
                         otherPath = [Coord(0,1),Coord(0,-1)]
                     else:

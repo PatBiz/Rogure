@@ -33,8 +33,8 @@ class Item (Element) : #Classe abstraite
 
 
 class StackOfItems (Item) :
-    def __init__ (self, name="Stack", visible=True, content=Optional[list[Item]]) :
-        Item.__init__(self, name, visible, abbrv="¤")
+    def __init__ (self, name="Stack", abbrv="¤", visible=True, content=Optional[list[Item]]) :
+        Item.__init__(self, name, abbrv, visible)
         self._content = content or []
 
     def extend (self, other) :
@@ -85,6 +85,8 @@ class Effect:
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
         for eff in range(len(creature._statut)):
             if creature._statut[eff]==self:
+                if creature._statut[eff].power<self.power:
+                    creature._statut[eff].power = self.power
                 creature._statut[eff].rounds = self.rounds
                 G.addMessage(f"The {creature._name} is {self.type}")
                 return True
