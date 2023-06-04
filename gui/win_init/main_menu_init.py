@@ -35,7 +35,6 @@ def mainMenuInit (screen) :
     screen.blit(quitButton.img, quitButton.rect)
     pygame.display.flip()
 
-    
 
     ev.__dict__["listButtons"] = [startButton, loadButton, quitButton]
     ev.__dict__["status"] = Trigger.InMainMenu

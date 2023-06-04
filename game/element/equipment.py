@@ -21,7 +21,7 @@ from utils.keyboard_listener import getch
 #                               EQUIPMENT ELEMENT
 #-------------------------------------------------------------------------------
 
-class Equipment (Item) :
+class Usable (Item) :
     def __init__ (self , name:str , abbrv:Optional[str]=None , visible=True, usage=None) :
         Item.__init__(self, name, abbrv, visible)
         self.usage = usage
@@ -30,21 +30,7 @@ class Equipment (Item) :
         raise NotImplementedError("Equipment is an abstract class.")
         
 
-"""
-Avis pour Mathieu :
-    Je pense qu'il faudrait fusionner Wearable et Equipment
-    afin de créer une classe abstraite qui générera les classes :
-        - Weapon
-        - Shield
-        - Armor
-        - Jewelry
-        ...
-    La raison pour laquelle je pense ça est que Equipment possède
-    les méthodes gérons l'utilisation du héro et Wearable gère les effets
-    que ça donne au héro (ex : Sword => plus de dégat).
-    D'ailleur avec l'exemple donné on voit bien que les classes sont complémentaires.
-"""
-class Consumables(Equipment):
+class Consumables(Usable):
     def __init__(self, name: str, abbrv: str | None = None, visible=True, usage=None):
         super().__init__(name, abbrv, visible, usage)
 
@@ -55,18 +41,21 @@ class Consumables(Equipment):
 
         Gme.theGame().addMessage(msg = f"The {self._name} is not usable")
         return False
+    
+    def get_sprite (self) :
+        return f"gui/assets/Items/Consumables/{self._name}.png"
 
-class ProjectileWeapon(Equipment):
+class ProjectileWeapon(Usable):
     def __init__(self, name: str, abbrv: str | None = None, visible=True, usage=None):
         super().__init__(name, abbrv, visible, usage)
 
     def getUse(self, creature):
-        if self.usage :
+        if self.usage:
             Gme.theGame().addMessage(msg = f"The {creature._name} uses the {self._name}")
             Gme.theGame().addMessage("Choose a direction> z:↑, s:↓, q:←, d:→")
             print(Gme.theGame().readMessages())
             ch = getch()
-            if not ch in ['z','s','q','d']:
+            if ch not in ['z', 's', 'q', 'd']:
                 return False
             dir = [Flr.Coord(0,-1),Flr.Coord(0,1),Flr.Coord(-1,0),Flr.Coord(1,0)][['z','s','q','d'].index(ch)]
             return self.usage(creature,dir)
@@ -74,10 +63,11 @@ class ProjectileWeapon(Equipment):
         Gme.theGame().addMessage(msg = f"The {self._name} is not usable")
         return False
 
-class Wearable(Equipment):
+
+class Wearable(Usable):
     """A wearable equipment."""
     def __init__(self, name, place, effect, abbrv="", visible=True, usage=True):
-        Equipment.__init__(self, name, abbrv, visible, usage)
+        Usable.__init__(self, name, abbrv, visible, usage)
         self.place = place
         self.effect = effect
 
@@ -101,22 +91,42 @@ class Wearable(Equipment):
         elif self.effect[0]=="defense":
             creature._defense -= self.effect[1]
 
+
 class Sword(Wearable):
     def __init__(self, name, place, effect, abbrv="", visible=True, usage=True):
         super().__init__(name, "weapon", effect, abbrv, visible, usage)
+
+    def get_sprite (self) :
+        return f"gui/assets/Items/Equipments/Shield/{self._name}.png"
+
 
 class Bow(ProjectileWeapon):
     def __init__(self, name: str, abbrv: str | None = None, visible=True, usage=None):
         super().__init__(name, abbrv, visible, usage)
 
+    def get_sprite (self) :
+        return f"gui/assets/Items/Equipments/Shield/{self._name}.png"
+
+
 class Wand(ProjectileWeapon):
     def __init__(self, name: str, abbrv: str | None = None, visible=True, usage=None):
         super().__init__(name, abbrv, visible, usage)
+
+    def get_sprite (self) :
+        return f"gui/assets/Items/Equipments/Shield/{self._name}.png"
+
 
 class Armor(Wearable):
     def __init__(self, name, place, effect, abbrv="", visible=True, usage=True):
         super().__init__(name, place, effect, abbrv, visible, usage)
 
+    def get_sprite (self) :
+        return f"gui/assets/Items/Equipments/Shield/{self._name}.png"
+
+
 class Shield(Wearable):
     def __init__(self, name, place, effect, abbrv="", visible=True, usage=True):
         super().__init__(name, "weapon", effect, abbrv, visible, usage)
+
+    def get_sprite (self) :
+        return f"gui/assets/Items/Equipments/Shield/{self._name}.png"

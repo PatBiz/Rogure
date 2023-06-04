@@ -1,9 +1,15 @@
+#******************************* Importations : ********************************
+
+# Built-in modules :
 import pygame
 
-
-from pygame_utils import GameClosureException, Trigger
+#Modules persos :
+from pygame_utils import GameClosureException
 import win_init
 import env_var as ev
+
+
+#******************************** Fonctions : **********************************
 
 #-------------------------------------------------------------------------------
 #                                  MAIN MENU
@@ -38,31 +44,24 @@ def close_inventory (screen):
     print("Close Inventory")
     win_init.gameInit(screen)
 
-def equip (screen, item_indice) : #Si clic inventaire
+def equip (item_indice) : #Si clic inventaire
     print(f"Equipping Item{item_indice}")
-    ...
-
-def disequip (screen, item) :
-    print(f"Disequipping {item._name}")
-    ...
+    hero = ev.game.__hero__
+    hero.use(hero._inventory[item_indice])
 
 # ------- Shop :
 
-def goto_shop () :
+def goto_shop (screen) :
     print("Start shopping")
+    win_init.shopInit(screen)
 
-    ...
-
-#-------------------------------------------------------------------------------
-#                              DEATH SCREEN
-#-------------------------------------------------------------------------------
-
-def restart_rogure (screen) :
-    print("Restart Rogure")
-    ...
+def close_shop (screen):
+    print("Close Inventory")
     win_init.gameInit(screen)
 
-
-def back_to_menu (screen) :
-    print("Back to menu")
-    win_init.mainMenuInit(screen)
+def buy (item, price) :
+    from copy import copy
+    if hero._porte_monnaie >= price :
+        hero = ev.game.__hero__
+        hero.take(copy(item))
+        hero._porte_monnaie -= price

@@ -15,8 +15,16 @@ icon = pygame.image.load("gui/assets/rogure_icon.png").convert()
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Rogure')
 
+# Profitons en pour générer les constantes d'environnement qui nécéssitaient d'initialiser pygame :
+
 ev.__dict__["emptyCell"]   = pygame.image.load("gui/assets/Decors/empty.png").convert_alpha()
 ev.__dict__["unknownItem"] = pygame.image.load("gui/assets/Items/none_item.png").convert_alpha()
+ev.__dict__["dictStatusEffect"] = {
+    "burned" : pygame.image.load("gui/assets/Status_effect/burned.png").convert(),
+    "poisened" : pygame.image.load("gui/assets/Status_effect/poisoned.png").convert(),
+    "paralysed" : pygame.image.load("gui/assets/Status_effect/confused.png").convert(),
+}
+ev.__dict__["font"] = pygame.font.Font(None ,8)
 
 # Boucle Principale :
 

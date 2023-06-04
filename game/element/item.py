@@ -112,6 +112,11 @@ class Trap(Item) :
         self.effect = effect
         self.actived = True
 
+    def get_sprite (self) -> str :
+        if self.actived :
+            return "gui/assets/Decors/floors/floor_3.png"
+        return "gui/assets/Decors/trap.png"
+
     def getTaken(self):
         if self.actived :
             if self.effect:
