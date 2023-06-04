@@ -3,15 +3,15 @@
 # Built-in modules :
 from typing import Optional
 import random as rd
+import math as mt
 
 #Modules persos :
 import game._game as Gme
 from .elem import Element
-from .equipment import Equipment, Wearable
+from .equipment import Wearable
 from .item import Item, StackOfItems, Gold, Trap
 
 from utils import statically_typed_function
-import math as mt
 
 
 #********************************** Classes : **********************************
@@ -124,7 +124,7 @@ class Hero (Creature) :
         self._level = level
         self.xp = xp
         self.seuilXp = seuilXp
-        self._statut=[]
+        self._statut = []
         self.weapon = None
         self.armor = [None,None]
 
@@ -199,7 +199,8 @@ class Hero (Creature) :
         if not self._level%4 and self._level>1:
             self._defense += 1
 
-    def wear(self, equipment):
+    @statically_typed_function
+    def wear(self, equipment:Wearable):
         if equipment.place=="weapon":
             if self.weapon!=None:
                 self.unwear("weapon",None)

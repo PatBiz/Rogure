@@ -3,8 +3,6 @@ import random as rd
 
 from game.floor import Coord
 
-pygame.init()
-
 # Wall :
 def getWallSprite(m, cwall):
     try :
@@ -43,7 +41,7 @@ def getFloorSprite () :
     return pygame.image.load(imgPath).convert()
 
 # Cloud :
-def getCloudSprite (m, cloudCoord) :
+def getCloudSprite () :
     return pygame.image.load("gui/assets/Decors/clouds/cloud_3.png").convert_alpha()
 
 # Element :

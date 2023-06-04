@@ -1,4 +1,4 @@
-from .button import Button, find_button_pressed
+from .button import Button, find_button_pressed, InventorySlot, HeroSlot
 from .triggers import GameClosureException, Trigger
 from .printer import Printer
 from .map_cell import MapCell, getCell_In_Room
@@ -10,7 +10,6 @@ __all__ = (
     # ---- Button ----
 
     "Button",
-    "TestButton",
     "find_button_pressed",
 
     # ---- Trigger ----
@@ -29,5 +28,10 @@ __all__ = (
 
     # ---- InfoBar ----
 
-    "InfoBar"
+    "InfoBar",
+
+    # ---- Inventory ----
+
+    "InventorySlot",
+    "HeroSlot",
 )

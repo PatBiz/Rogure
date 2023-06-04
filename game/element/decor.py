@@ -6,7 +6,6 @@ import random as rd
 # Modules persos :
 import game._game as Gme
 from .elem import Element
-from .equipment import Equipment
 from .item import StackOfItems, Key
 from utils.keyboard_listener import getch
 

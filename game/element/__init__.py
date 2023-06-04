@@ -1,7 +1,7 @@
 from .elem import Element
 from .creature import Creature, Monster, Hero
 from .item import Item, StackOfItems, Gold, Key
-from .equipment import Equipment, Wearable
+from .equipment import Usable, Wearable
 from .decor import FixedElement, Stairs, Chest, Seller
 from .capacity import heal, teleport
 from .tools import meet
@@ -25,7 +25,7 @@ __all__ = (
 
     # ---- Equipment ----
 
-    "Equipment",
+    "Usable",
     "Wearable",
 
     # ---- Decor ----

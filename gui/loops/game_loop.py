@@ -5,9 +5,9 @@ import pygame
 import time
 
 # Modules persos :
-from gui.pygame_utils import find_button_pressed, getCell_In_Room, Trigger
+from gui.pygame_utils import find_button_pressed, getCell_In_Room
 from gui.sprite_getter import getElementSprite, getCloudSprite
-from gui.button_actions import start_rogure,quit_rogure, open_inventory, close_inventory
+from gui.button_actions import start_rogure,quit_rogure, open_inventory, close_inventory, close_shop
 
 # Variables d'environnement :
 import env_var as ev
@@ -19,10 +19,12 @@ import env_var as ev
 #                                 GAME LOOP
 #-------------------------------------------------------------------------------
 
+
 def _update_screen(screen):
     # Récupération des variables d'environnements :
     g = ev.game
     m = g.__floor__
+    m.uncacheAllItem()
 
     #Affichage des cellules visible et des éléments à l'intérieur :
     visibleZone = m.get_VisibleZone()
@@ -48,40 +50,54 @@ def _update_screen(screen):
     printer.reset()
 
     pygame.display.update(ev.mapRect)
+
     #pygame.display.flip()
+
     #pygame.event.pump()
 
-def _update_info_hero (screen) :
-    # Récupération des variables d'environnements :
-    g = ev.game
 
-    #Actualisation des informations sur le héro :
+def _update_info_hero (screen) :
+    InfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
+    screen.blit(InfoHero, (0,0))
+    pygame.display.flip()
+
+    # Récupération des variables d'environnements :
+    hero = ev.game.__hero__
+
+    # Actualisation des barres sur le héro :
     for infobar in ev.listInfoBar :
-        infobar.update(g.__hero__)
+        infobar.update(hero)
         screen.blit(infobar.img, infobar.rect)
         pygame.display.update(infobar.rect)
-    # TODO :
-    #BgInfoHero = pygame.image.load("gui/assets/background/hero_info_wide.png").convert_alpha()
-    #Bar de pv
-    #Bar de mana
-    #Bar de satiété
+    
+    # Actualisation des effets du héro :
+    for eff,posx in zip(hero._statut, [75, 115, 155]) :
+        effImg = ev.dictStatusEffect[eff[0]]
+        screen.blit(effImg, (posx,35))
+
+    level = ev.font.render(f"{hero._level}", 1, (255,255,255))
+    gold = ev.font.render(f"{hero._porte_monnaie}", 1, (255,255,255))
+
+    screen.blit(level, (100,50))
+    screen.blit(gold, (100,80))
+
+    
     #Porte-monnaie
     #Lvl
-    #Effet
-
+    
 
 def gameLoop (screen) :
+
     if ev.generateMap :
         start_rogure(screen)
 
     if ev.updateScreen :
         _update_screen(screen)
-        """
-        while screen.get_at((768, 433)) == (16, 22, 22, 255) :
-            #ev.f()
-            start_rogure(screen)
-            time.sleep(0.03)
-        """
+        if screen.get_at((768, 433)) == (16, 22, 22, 255) :
+            import win_init
+            win_init.gameInit(screen)
+            time.sleep(1)
+        
         ev.__dict__["updateScreen"] = False
     
     if ev.updateInfo :
@@ -116,7 +132,6 @@ def gameLoop (screen) :
         elif event.type == pygame.KEYDOWN :
             try : 
                 ev.game_actions[event.key](g.__hero__)
-                print(f"{event.key} has been pressed")
                 print(g.__floor__.pos(g.__hero__))
                 g.__floor__.moveAllMonsters()
                 g.update_effects()
@@ -128,7 +143,7 @@ def gameLoop (screen) :
                         ev.__dict__["listButtons"] = open_inventory(screen)
                     case pygame.K_m :
                         ev.__dict__["generateMap"] = True
-                        ev.__dict__["listButtons"] = start_rogure(screen)
+                        start_rogure(screen)
                     case _ : pass
 
         elif event.type == pygame.MOUSEBUTTONDOWN :
@@ -140,12 +155,68 @@ def gameLoop (screen) :
                 pygame.display.update(button.rect)
                 button.action()
 
+
 #-------------------------------------------------------------------------------
 #                               INVENTORY LOOP
 #-------------------------------------------------------------------------------
 
 
 def inventoryLoop (screen) :
+
+    for button in ev.listButtons :
+        screen.blit(button.img, button.rect)
+    pygame.display.flip()
+
+    for slot in ev.listSlots :
+        screen.blit(slot.img, slot.rect)
+        try : screen.blit(getElementSprite(slot.content), slot.rect)
+        except AttributeError : pass
+    pygame.display.flip()
+
+    g = ev.game
+    mouse_pos = pygame.mouse.get_pos()
+    for button in ev.listButtons :
+        if button.rect.collidepoint(mouse_pos) :
+            screen.blit(button.active_img, button.rect)
+            pygame.display.update(button.rect)
+        try : 
+            item = g.__hero__._inventory[button.invId]
+            itemSprite = getElementSprite(item)
+            screen.blit(itemSprite, button.rect)
+        except IndexError : pass
+
+    for event in pygame.event.get() :
+
+        if event.type == pygame.QUIT : #On ferme la fenêtre + stoppe le jeu
+            quit_rogure()
+
+        elif event.type == pygame.MOUSEBUTTONDOWN :
+            button = find_button_pressed(ev.listButtons, event.pos)
+            if button :
+                try : screen.blit(button.active_img, button.rect)
+                except AttributeError : pass 
+                pygame.display.update(button.rect)
+                try : button.action()
+                except IndexError: pass #l'inventaire était vide
+            else :
+                close_inventory(screen)
+        
+        elif event.type == pygame.KEYDOWN :
+            if event.key == pygame.K_d :
+                button = find_button_pressed(ev.listButtons, pygame.mouse.get_pos())
+                if button :
+                    try :
+                        item = g.__hero__._inventory[button.invId]
+                        g.__hero__.drop(item)
+                    except IndexError : pass
+
+
+#-------------------------------------------------------------------------------
+#                               SHOP LOOP
+#-------------------------------------------------------------------------------
+
+
+def shopLoop (screen) :
 
     for button in ev.listButtons :
         screen.blit(button.img, button.rect)
@@ -170,4 +241,4 @@ def inventoryLoop (screen) :
                 pygame.display.update(button.rect)
                 button.action()
             else :
-                close_inventory(screen)
+                close_shop(screen)

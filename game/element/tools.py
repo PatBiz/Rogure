@@ -2,7 +2,7 @@
 
 # Modules persos :
 import game._game as Gme
-from .creature import Hero, Monster
+from .creature import Hero
 from .decor import FixedElement
 from .item import Item
 
