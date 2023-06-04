@@ -18,7 +18,7 @@ game_actions = {
         pygame.K_s : lambda hero : theGame().__floor__.moveHero(hero , Map.dir['s'])   ,
         pygame.K_d : lambda hero : theGame().__floor__.moveHero(hero , Map.dir['d'])   ,
         pygame.K_q : lambda hero : theGame().__floor__.moveHero(hero , Map.dir['q'])   ,
-        pygame.K_SPACE : lambda hero : theGame().__floor__.moveHero(hero , Map.dir['q']),
+        pygame.K_SPACE : lambda hero : theGame().__floor__.moveHero(hero , Map.dir[' ']),
         # Actions sur l'inventaire :
         pygame.K_u : lambda hero : hero.use(theGame().select(hero._inventory))        ,
         pygame.K_h : lambda hero : hero.drop(theGame().select(hero._inventory))       ,

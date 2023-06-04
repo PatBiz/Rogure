@@ -5,7 +5,7 @@ import pygame
 import time
 
 # Modules persos :
-from gui.pygame_utils import find_button_pressed, getCell_In_Room
+from gui.pygame_utils import find_button_pressed, getCell_In_Room, Trigger
 from gui.sprite_getter import getElementSprite, getCloudSprite
 from gui.button_actions import start_rogure,quit_rogure, open_inventory, close_inventory
 
@@ -32,14 +32,14 @@ def _update_screen(screen):
     printer = ev.printer
     for lc, ln in zip(cellInVisibleZone, rNuageVisible) :
         for cell, cloudCell in zip(lc, ln) :
-            printer.print_image(screen, cell.img)
+            screen.blit(cell.img, printer.pos)
             if cloudCell == " ":
-                printer.print_image(screen, getCloudSprite())
+                screen.blit(getCloudSprite(), printer.pos)
             else:
                 elem = m.get_Elmt_At_Coord(cell.coord_in_map)
                 if not isinstance(elem, str) : #Si il y a un élément dans cette cellule
                     try : eSprite = getElementSprite(elem)
-                    except FileNotFoundError : eSprite = ev.unknownItem
+                    except (FileNotFoundError, AttributeError) : eSprite = ev.unknownItem
                     print(elem._name)
                     screen.blit(eSprite, printer.pos)
             #pygame.display.update(cell.img.get_rect(topleft=printer.pos))
@@ -74,6 +74,9 @@ def _update_info_hero (screen) :
 
 def gameLoop (screen) :
 
+    if ev.generateMap :
+        start_rogure(screen)
+
     if ev.updateScreen :
         _update_screen(screen)
         """
@@ -87,7 +90,6 @@ def gameLoop (screen) :
     if ev.updateInfo :
         _update_info_hero(screen)
         ev.__dict__["updateScreen"] = False
-    
 
     """"print (f"--- Etage {self._floor_level} ---")"""
 
@@ -139,8 +141,7 @@ def gameLoop (screen) :
                 try : screen.blit(button.active_img, button.rect)
                 except AttributeError : pass
                 pygame.display.update(button.rect)
-                ev.__dict__["listButtons"] = button.action()
-
+                button.action()
 
 #-------------------------------------------------------------------------------
 #                               INVENTORY LOOP
@@ -172,4 +173,4 @@ def inventoryLoop (screen) :
                 pygame.display.update(button.rect)
                 button.action()
             else :
-                ev.__dict__["listButtons"] = close_inventory(screen)
+                close_inventory(screen)
