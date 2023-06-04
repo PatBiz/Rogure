@@ -30,7 +30,7 @@ def mainMenuLoop (screen) :
                 try : screen.blit(button.active_img, button.rect)
                 except AttributeError : pass 
                 pygame.display.update(button.rect)
-                ev.__dict__["listButtons"] = button.action()
+                button.action()
         
         #NON
         """ 
