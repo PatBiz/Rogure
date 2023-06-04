@@ -6,7 +6,6 @@ from game.floor import Coord
 pygame.init()
 
 # Wall :
-
 def getWallSprite(m, cwall):
     try :
         bcase = m.get_Elmt_At_Coord(cwall+Coord(0,1))
@@ -35,7 +34,6 @@ def getWallSprite(m, cwall):
         return pygame.image.load(imgPath).convert()
 
 # Floor :
-
 def getFloorSprite () :
     imgPath = rd.choice(["gui/assets/Decors/floors/floor_1.png",
                       "gui/assets/Decors/floors/floor_2.png",
@@ -45,19 +43,10 @@ def getFloorSprite () :
     return pygame.image.load(imgPath).convert()
 
 # Cloud :
-
-def getCloudSprite () :
-    imgPath = "gui/assets/Decors/clouds/cloud_3.png"
-    return pygame.image.load(imgPath).convert_alpha()
+def getCloudSprite (m, cloudCoord) :
+    return pygame.image.load("gui/assets/Decors/clouds/cloud_3.png").convert_alpha()
 
 # Element :
-
-
-MonstreSprite = {
-    
-}
-
-
 def getElementSprite (elem) :
     return pygame.image.load(elem.get_sprite()).convert_alpha()
     #raise KeyError("Pour l'instant y a rien")

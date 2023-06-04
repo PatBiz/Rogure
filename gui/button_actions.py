@@ -50,6 +50,7 @@ def disequip (screen, item) :
 
 def goto_shop () :
     print("Start shopping")
+
     ...
 
 #-------------------------------------------------------------------------------

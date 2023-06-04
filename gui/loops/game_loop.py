@@ -48,9 +48,7 @@ def _update_screen(screen):
     printer.reset()
 
     pygame.display.update(ev.mapRect)
-
     #pygame.display.flip()
-
     #pygame.event.pump()
 
 def _update_info_hero (screen) :
@@ -73,7 +71,6 @@ def _update_info_hero (screen) :
 
 
 def gameLoop (screen) :
-
     if ev.generateMap :
         start_rogure(screen)
 

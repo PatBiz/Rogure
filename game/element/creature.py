@@ -8,9 +8,10 @@ import random as rd
 import game._game as Gme
 from .elem import Element
 from .equipment import Equipment, Wearable
-from .item import Item, StackOfItems, Gold
+from .item import Item, StackOfItems, Gold, Trap
 
 from utils import statically_typed_function
+import math as mt
 
 
 #********************************** Classes : **********************************
@@ -21,31 +22,51 @@ from utils import statically_typed_function
 
 
 class Creature (Element) : #Classe abstraite
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, visible=True, strength:Optional[int]=1, speed:Optional[int]=1) :
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, visible=True, strength:Optional[int]=1, defense=0, speed:Optional[int]=1) :
         Element.__init__(self, name, abbrv, visible)
         self._hp = hp
         self._strength = strength
+        self._defense = defense
         self._speed = speed
 
     def description(self):
         raise NotImplementedError("Creature is an abstract class.")
 
     def takeDamage (self, n) :
-        self._hp -= n
+        self._hp = self._hp - n if n>0 else self._hp
 
     def hit (self, other):
-        other.takeDamage(self._strength)
+        other.takeDamage(self._strength - round(other._defense/2))
         Gme.theGame().addMessage(msg = f"The {self._name} hits the {other.description()}")
         if isinstance(self,Monster) and self.capacity:
             self.useCapacity(other)
 
     def isDead (self) :
         return self._hp <= 0
+    
+    def throw(self, power, unique, dir=None):
+        m = Gme.theGame().__floor__
+        orig = m.get_Pos_Of_Elmt(self)+dir
+        elmt = m.get_Elmt_At_Coord(orig)
+        while elmt==m.ground or isinstance(elmt,Trap):
+            orig+=dir
+            elmt=m.get_Elmt_At_Coord(orig)
+        if isinstance(elmt,Creature):
+            elmt.takeDamage(power-round(elmt._defense/2))
+            Gme.theGame().addMessage(msg = f"The {self._name} hits the {elmt.description()}")
+            if elmt.isDead():
+                if isinstance(self,Hero):
+                    self.xp += elmt.xpAmount
+                    if self.xp>=self.seuilXp:
+                        self.levelUp()
+                    elmt.dropLoot()
+                m.remove_Elmt_At_Coord(m.get_Pos_Of_Elmt(elmt))
+        return unique
 
 
 class Monster (Creature) :
-    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, visible=True, strength:Optional[int]=1, speed:Optional[int]=1, xpAmount=0, loot=None, capacity=None) :
-        Creature.__init__(self, name, hp, abbrv, visible, strength, speed)
+    def __init__ (self, name:str, hp:int, abbrv:Optional[str]=None, visible=True, strength:Optional[int]=1, defense=0, speed:Optional[int]=1, xpAmount=0, loot=None, capacity=None) :
+        Creature.__init__(self, name, hp, abbrv, visible, strength, defense, speed)
         self.xpAmount = int(hp*strength/2) if not xpAmount else xpAmount
         self.loot = loot
         self.capacity = capacity
@@ -69,6 +90,17 @@ class Monster (Creature) :
             if self._name == "Invisible":
                 return self.capacity(self)
             return self.capacity(creature)
+        
+class DistanceMonster(Monster):
+    def __init__(self, name: str, hp: int, abbrv: str | None = None, visible=True, strength: int | None = 1, defense=0, speed: int | None = 1, xpAmount=0, loot=None, capacity=None):
+        super().__init__(name, hp, abbrv, visible, strength, defense, speed, xpAmount, loot, capacity)
+        
+    def snipe(self, creature):
+        m = Gme.theGame().__floor__
+        posSelf = m.get_Pos_Of_Elmt(self)
+        posCreature = m.get_Pos_Of_Elmt(creature)
+        if not posCreature.pente(posSelf):
+            self.throw(self._strength,False,posSelf.direction(posCreature))
 
 
 class Hero (Creature) :
@@ -78,16 +110,15 @@ class Hero (Creature) :
                   abbrv: Optional[str] = '@',
                   visible=True,
                   strength: Optional[int] = 2,
-                  defense = 3,
+                  defense = 1,
                   inventory: Optional[list] = None,
                   porte_monnaie: Optional[int]=0,
                   level: Optional[int]=0,
                   xp = 0,
                   seuilXp=10,
                   hpMax = None) :
-        Creature.__init__(self, name, hp, abbrv, visible, strength, speed=1)
+        Creature.__init__(self, name, hp, abbrv, visible, strength, defense, speed=1)
         self._hpMax = hpMax or hp
-        self._defense = defense
         self._inventory = inventory or []
         self._porte_monnaie = porte_monnaie
         self._level = level
@@ -130,9 +161,6 @@ class Hero (Creature) :
     def use (self, item:Item) :
         if item not in self._inventory :
             raise ValueError(f"<{self._name}> doesn't have <{item._name}>")
-        if isinstance(item,Wearable):
-            self.wear(item)
-            self._inventory.remove(item)
         elif item.getUse(self) :
             self._inventory.remove(item)
 
@@ -162,12 +190,14 @@ class Hero (Creature) :
     
     def levelUp(self):
         self.xp-=self.seuilXp
-        self.seuilXp*=2
         self._level+=1
-        self._hpMax += 3
+        self.seuilXp = int(mt.exp(self._level/1.75)) + 12
+        self._hpMax += 2
         self._hp = self._hpMax
-        if not self._level%2 and self._level>1:
+        if not self._level%3 and self._level>1:
             self._strength += 1
+        if not self._level%4 and self._level>1:
+            self._defense += 1
 
     def wear(self, equipment):
         if equipment.place=="weapon":
@@ -183,6 +213,7 @@ class Hero (Creature) :
                 self.unwear("armor",1)
             self.armor[1] = equipment
         equipment.applyEffect(self)
+        return True
 
     def unwear(self,place,index):
         if place=="weapon":

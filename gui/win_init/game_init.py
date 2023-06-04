@@ -25,7 +25,7 @@ def _generate_newFloor ():
 
     # Récupération des variables d'environnements :
     g = ev.game
-    ev.game.buildFloor()
+    g.buildFloor()
     m = g.__floor__
 
     #Définition des cellules de la map :
@@ -128,5 +128,4 @@ def inventoryInit (screen) :
     pygame.display.flip()
 
     ev.__dict__["status"] = Trigger.InInventory
-    
     ev.__dict__["listButtons"] = lCases + []
