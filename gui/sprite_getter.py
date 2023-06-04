@@ -52,6 +52,12 @@ def getCloudSprite () :
 
 # Element :
 
+
+MonstreSprite = {
+    
+}
+
+
 def getElementSprite (elem) :
     return pygame.image.load(elem.get_sprite()).convert_alpha()
     #raise KeyError("Pour l'instant y a rien")

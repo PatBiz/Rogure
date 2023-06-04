@@ -12,11 +12,11 @@ import env_var as ev
 
 def start_rogure (screen):
     print ("Start")
-    return win_init.gameInit(screen)
+    win_init.gameInit(screen)
 
 def load_rogure (screen) :
     print ("Load")
-    return #win_init.loadInit(screen)
+    #win_init.loadInit(screen)
 
 def quit_rogure () :
     print ("Quit")
@@ -30,13 +30,13 @@ def quit_rogure () :
 
 def open_inventory (screen) :
     print("Open Inventory")
-    return win_init.inventoryInit(screen)
+    win_init.inventoryInit(screen)
 
 # ------- Inventory :
 
 def close_inventory (screen):
     print("Close Inventory")
-    return win_init.gameInit(screen)
+    win_init.gameInit(screen)
 
 def equip (screen, item_indice) : #Si clic inventaire
     print(f"Equipping Item{item_indice}")
@@ -50,4 +50,18 @@ def disequip (screen, item) :
 
 def goto_shop () :
     print("Start shopping")
-    return ...
+    ...
+
+#-------------------------------------------------------------------------------
+#                              DEATH SCREEN
+#-------------------------------------------------------------------------------
+
+def restart_rogure (screen) :
+    print("Restart Rogure")
+    ...
+    win_init.gameInit(screen)
+
+
+def back_to_menu (screen) :
+    print("Back to menu")
+    win_init.mainMenuInit(screen)

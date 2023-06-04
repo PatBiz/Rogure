@@ -3,7 +3,9 @@ class Trigger :
     InGame = "in_game"
     InLoading = "in_loading"
     InInventory = "in_inventory"
-    #InShop = "in_shop" #pas sûr
+    InShop = "in_shop"
+    InChest = "in_chest"
+    HasLost = "has_lost"
 
 class GameClosureException (Exception) :
     pass

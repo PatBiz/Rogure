@@ -25,7 +25,7 @@ def _generate_newFloor ():
 
     # Récupération des variables d'environnements :
     g = ev.game
-    g.buildFloor() #¤DEBUG¤#
+    ev.game.buildFloor()
     m = g.__floor__
 
     #Définition des cellules de la map :
@@ -97,8 +97,7 @@ def gameInit(screen):
     ev.__dict__["updateScreen"] = True
     ev.__dict__["updateInfo"] = False
     ev.__dict__["listInfoBar"] = [PvInfoBar, ManaInfoBar, SatietyInfoBar]
-
-    return [backPackButton]
+    ev.__dict__["listButtons"] = [backPackButton]
 
 
 #-------------------------------------------------------------------------------
@@ -130,4 +129,4 @@ def inventoryInit (screen) :
 
     ev.__dict__["status"] = Trigger.InInventory
     
-    return lCases + []
+    ev.__dict__["listButtons"] = lCases + []

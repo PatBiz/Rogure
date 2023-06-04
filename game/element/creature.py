@@ -2,6 +2,7 @@
 
 # Built-in modules :
 from typing import Optional
+import random as rd
 
 #Modules persos :
 import game._game as Gme
@@ -49,6 +50,13 @@ class Monster (Creature) :
         self.loot = loot
         self.capacity = capacity
 
+        self.direc = rd.choice(["l","r"])
+    
+    def get_sprite (self) :
+        if self.visible :
+            return f"gui/assets/Characters/Ennemies/{self._name}/{self._name}_{self.direc}.png"
+        return "gui/assets/Decors/empty.png"
+
     def description(self):
         return f'<{self._name}>({self._hp})'
     
@@ -88,6 +96,11 @@ class Hero (Creature) :
         self._statut=[]
         self.weapon = None
         self.armor = [None,None]
+
+        self.direc = rd.choice(["l","r"])
+    
+    def get_sprite (self) :
+        return f"gui/assets/Characters/Hero/{self._name}_{self.direc}.png"
 
     def description (self) :
         return f'<{self._name}>({self._hp}/{self._hpMax})|{self._level}|xp: {self.xp}/{self.seuilXp}{"{"+str(self._porte_monnaie)+"}"}{self._inventory}'
