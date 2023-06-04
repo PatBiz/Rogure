@@ -1,15 +1,20 @@
 #******************************* Importations : ********************************
 
 # Built-in modules :
-...
+import random as rd
 
 # Modules persos :
 import game._game as Gme
 from .elem import Element
 from .equipment import Equipment
 from .item import StackOfItems, Key
-
 from utils.keyboard_listener import getch
+
+# Modules pour l'interface graphique :
+from gui.pygame_utils.triggers import Trigger
+
+# Variables d'environnement (pour l'interface graphique) :
+import env_var as ev #c'est normal si sur VsCode c'est souligné
 
 
 #********************************** Classes : **********************************
@@ -34,16 +39,25 @@ class Stairs (FixedElement) :
         FixedElement.__init__(self, 'Stairs', 'E')
 
     @staticmethod
+    def get_sprite() :
+        return "gui/assets/Decors/stairs.png"
+
+    @staticmethod
     def action () :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
         G.__floor_level__ += 1
         G.buildFloor()
+        ev.__dict__["generateMap"] = True
         G.addMessage(f"The {G.__hero__._name} goes down")
 
 
 class Chest (FixedElement) :
     def __init__ (self) :
         FixedElement.__init__(self, 'Chest', 'm')
+
+    @staticmethod
+    def get_sprite() :
+        return "gui/assets/Decors/chest_close.png"
 
     @staticmethod
     def action () :
@@ -67,6 +81,10 @@ class OpenedChest (FixedElement) : #J'en ai besoin sinon ce sera plus dur pour m
         FixedElement.__init__(self, 'OpenedChest', 'n')
 
     @staticmethod
+    def get_sprite () :
+        return "gui/assets/Decors/chest_open.png"
+
+    @staticmethod
     def action () :
         Gme.theGame().addMessage("This chest has already been opened")
 
@@ -75,6 +93,10 @@ class Seller (FixedElement) :
     def __init__(self):
         FixedElement.__init__(self, "Shop", "$")
         self.items = self.stock()
+
+    @staticmethod
+    def get_sprite ():
+        return f"gui/assets/Characters/Allies/Seller_{rd.choice(['l','r'])}.png"
 
     def stock (self) :
         G = Gme.theGame()
@@ -85,6 +107,7 @@ class Seller (FixedElement) :
     def action (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nmbre d'appel
         G.addMessage(f"The {G.__hero__._name} opens the shop")
+        ev.__dict__["status"] = Trigger.InShop
         self.purchase()
 
     def purchase(self):

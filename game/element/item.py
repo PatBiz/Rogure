@@ -37,6 +37,14 @@ class StackOfItems (Item) :
         Item.__init__(self, name, abbrv, visible)
         self._content = content or []
 
+    def get_sprite (self) -> str :
+        n = len(self._content)
+        if n<4 :
+            return "gui/assets/Items/stacks/stack_stage_1.png"
+        if n<7 :
+            return "gui/assets/Items/stacks/stack_stage_2.png"
+        return "gui/assets/Items/stacks/stack_stage_3.png"
+
     def extend (self, other) :
         self._content.extend(other._content)
 
@@ -62,6 +70,10 @@ class Gold (Item) :
     def __init__ (self , name:str , abbrv:Optional[str]=None, visible=True, amount=1) :
         Item.__init__(self, name, abbrv, visible)
         self._amount = amount
+
+    @staticmethod
+    def get_sprite () -> str :
+        return "gui/assets/Items/coin.png"
 
     def getTaken (self) :
         G = Gme.theGame() #Optimise le code en réduisant le nombre d'appel
@@ -110,3 +122,7 @@ class Trap(Item) :
 class Key (Item) :
     def __init__ (self) :
         Item.__init__(self, "Key", "µ")
+    
+    @staticmethod
+    def get_sprite () -> str :
+        return "gui/assets/Items/key.png"

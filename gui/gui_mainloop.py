@@ -25,6 +25,7 @@ Hypothèse d'implémentation dans 'main.py' :
     - mettre dans 'main.py'
     - faire comme 'gui_tester.py'
 """
+
 ev.__dict__["generateMap"] = True
 win_init.mainMenuInit(screen)
 while True :
@@ -33,12 +34,15 @@ while True :
             loops.mainMenuLoop(screen)
         case Trigger.InGame :
             loops.gameLoop(screen)
-            ...
+            if ev.game.__hero__.isDead() :
+                win_init.deathScreenInit(screen)
         case Trigger.InInventory :
             loops.inventoryLoop(screen)
-        #case InLoading :
+        #case Trigger.InLoading :
         #    ...
-        #case InShop :
+        #case Trigger.InShop :
         #    ...
+        #case Trigger.HasLost :
+            loops.deathScreenLoop(screen)
         case None :
             pygame.quit()
