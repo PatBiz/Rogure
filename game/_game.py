@@ -29,8 +29,8 @@ class _Game() :
 
     # ¤¤¤¤¤¤¤¤¤¤ CLASS ATTRIBUTES ¤¤¤¤¤¤¤¤¤¤ #
     equipments = {0: [ Elmt.equipment.Consumables("potion","!",usage=Elmt.heal), Elmt.Gold("gold","o") ],
-                  1: [ Elmt.equipment.Sword("sword","weapon",("strength",1)), Elmt.equipment.Consumables("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)), Elmt.equipment.ProjectileWeapon("dague",usage=lambda hero,dir: Elmt.capacity.throw(hero,hero._strength,True,dir)),Elmt.Gold("gold","o",2) ],
-                  2: [ Elmt.equipment.Shield("shield","weapon",("defense",1),abbrv="♦"), Elmt.Gold("gold","o",3), Elmt.equipment.Bow("bow",usage=lambda hero,dir: Elmt.capacity.throw(hero,3*hero._strength//2,False,dir)) ],
+                  1: [ Elmt.equipment.Sword("sword","weapon",("strength",1)), Elmt.equipment.Consumables("potion","!",usage=lambda hero : Elmt.teleport(hero , unique = True)), Elmt.equipment.ProjectileWeapon("dague",usage=lambda hero,dir: Elmt.Creature.throw(hero,hero._strength,True,dir)),Elmt.Gold("gold","o",2) ],
+                  2: [ Elmt.equipment.Shield("shield","weapon",("defense",1),abbrv="♦"), Elmt.Gold("gold","o",3), Elmt.equipment.Bow("bow",usage=lambda hero,dir: Elmt.Creature.throw(hero,3*hero._strength//2,False,dir)) ],
                   3: [ Elmt.equipment.Armor("helmet","helmet",("defense",1)), Elmt.Gold("gold","o",4) ],
                   4: [ Elmt.equipment.Armor("chainmail","chestplate",("defense",2)), Elmt.Gold("gold","o",5) ],
                   5: [ Elmt.equipment.Consumables("portoloin","w",usage=lambda hero : Elmt.teleport(hero , unique = False)), Elmt.Gold("gold","o",7) ]
@@ -124,10 +124,10 @@ class _Game() :
     def update_floor_affichage (self, nuageDeVisibilite=True) :
         self._floor.uncacheAllItem()
         if nuageDeVisibilite :
-            print(self._floor)
+            #print(self._floor)
             print(self._floor.nuageVisibilite())
             return self._floor.nuageVisibilite()
-        print(self._floor)
+        #print(self._floor)
         return repr(self._floor)
     
     def update_effects(self):
@@ -162,6 +162,9 @@ class _Game() :
                     self._floor.moveAllMonsters()
         
         print("--- Game Over ---")
+
+    def restart(self):
+        theGame(self).play()
 
 
 #********************************* Singleton : *********************************

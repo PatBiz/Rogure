@@ -421,12 +421,13 @@ class Map :
     # ¤¤¤¤¤¤¤ METHODES DE DEPLACEMENT ¤¤¤¤¤¤ #
     def findPath(self,monster,dest):
         if (dest in self)  and  (((objMet := self[dest]) == Map.ground)  or  (isinstance(objMet,Elmt.Element))) and not isinstance(objMet,Elmt.FixedElement) :
-            print(f"{monster}-->{objMet}") #¤Debug¤#
+            #print(f"{monster}-->{objMet}") #¤Debug¤#
             if objMet == Map.ground:
                 self[monster] = dest
             elif Elmt.meet(monster, objMet) :
                 self.remove_Elmt_At_Coord(dest)  #On vide l'emplacement de l'élément
-                self[monster] = dest
+                if not isinstance(objMet, Elmt.Hero):
+                    self[monster] = dest
             return True
         return False
 
@@ -443,6 +444,7 @@ class Map :
             if orig.distance(posHero) > 6 : 
                 continue
             for _ in range(monster._speed) :
+                orig = self[monster] #Position de actuelle du monstre
                 if isinstance(monster,Elmt.creature.DistanceMonster):
                     monster.snipe(self._hero)
                 elif not self.findPath(monster,orig + orig.direction(posHero)):

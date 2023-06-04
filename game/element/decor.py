@@ -78,8 +78,7 @@ class Seller (FixedElement) :
 
     def stock (self) :
         G = Gme.theGame()
-        objects = [G.equipments[0][0],G.equipments[1][1],G.equipments[1][2]]
-        stock = [[obj,3,3] for obj in objects]
+        stock = [[G.equipments[0][0],3,3],[G.equipments[1][1],5,3],[G.equipments[1][2],7,3]]
         return stock
 
     def action (self) :
@@ -93,11 +92,11 @@ class Seller (FixedElement) :
         while purchase:
             interface = ''
             for obj in range(len(self.items)):
-                interface += f"\t- ({obj}) <{self.items[obj][0]}>, price: {self.items[obj][1]} golds, stock: {self.items[obj][2]}\n"
+                interface += f"\t- ({obj}) <{self.items[obj][0]._name}>, price: {self.items[obj][1]} golds, stock: {self.items[obj][2]}\n"
             G.addMessage("Do you want to buy something?>\n"+interface+"Your golds: "+str(G.__floor__._hero._porte_monnaie))
             print(G.readMessages())
             choice = getch()
-            if not choice in ['0','1','2']:
+            if not choice in [str(nb) for nb in range(len(self.items))]:
                 return False
             if G.__floor__._hero._porte_monnaie<self.items[int(choice)][1]:
                 G.addMessage("You try to scam me?")
